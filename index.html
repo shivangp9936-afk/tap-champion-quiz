@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tap to Champion</title>
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #101040, #6415a8);
+    color: white;
+    text-align: center;
+}
+.container {
+    padding: 25px 15px;
+}
+h1 {
+    color: gold;
+    font-size: 32px;
+}
+.card {
+    background: rgba(255,255,255,0.12);
+    padding: 25px 15px;
+    border-radius: 20px;
+    max-width: 400px;
+    margin: 20px auto;
+}
+button {
+    border: none;
+    border-radius: 15px;
+    padding: 17px 25px;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+#tapButton {
+    background: gold;
+    color: #171047;
+    width: 100%;
+    margin-top: 15px;
+}
+#startButton {
+    background: #20e3b2;
+    color: #111;
+}
+.stats {
+    font-size: 20px;
+    margin: 15px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>🏆 TAP TO CHAMPION</h1>
+    <p>Tap fast and become the champion!</p>
+
+    <div class="card">
+        <div class="stats">⏱️ Time: <span id="time">15</span>s</div>
+        <div class="stats">👆 Score: <span id="score">0</span></div>
+        <div class="stats">⭐ Best Score: <span id="best">0</span></div>
+
+        <button id="startButton" onclick="startGame()">START GAME</button>
+        <button id="tapButton" onclick="tapGame()" disabled>TAP ME! 👆</button>
+
+        <h2 id="message">Press START GAME to play!</h2>
+    </div>
+</div>
+
+<script>
+let score = 0;
+let time = 15;
+let playing = false;
+let timer;
+
+document.getElementById("best").textContent =
+    localStorage.getItem("tapChampionBest") || 0;
+
+function startGame() {
+    clearInterval(timer);
+    score = 0;
+    time = 15;
+    playing = true;
+
+    document.getElementById("score").textContent = score;
+    document.getElementById("time").textContent = time;
+    document.getElementById("message").textContent = "Tap as fast as you can!";
+    document.getElementById("startButton").disabled = true;
+    document.getElementById("tapButton").disabled = false;
+
+    timer = setInterval(function() {
+        time--;
+        document.getElementById("time").textContent = time;
+
+        if (time <= 0) {
+            endGame();
+        }
+    }, 1000);
+}
+
+function tapGame() {
+    if (!playing) return;
+    score++;
+    document.getElementById("score").textContent = score;
+}
+
+function endGame() {
+    clearInterval(timer);
+    playing = false;
+
+    document.getElementById("tapButton").disabled = true;
+    document.getElementById("startButton").disabled = false;
+    document.getElementById("message").textContent =
+        "Game Over! Your score: " + score;
+
+    let best = Number(localStorage.getItem("tapChampionBest") || 0);
+
+    if (score > best) {
+        localStorage.setItem("tapChampionBest", score);
+        document.getElementById("best").textContent = score;
+        document.getElementById("message").textContent += " 🏆 New Record!";
+    }
+}
+</script>
+</body>
+</html>
