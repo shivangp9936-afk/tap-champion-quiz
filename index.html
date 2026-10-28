@@ -3,123 +3,166 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tap to Champion</title>
+<title>Tap Champion Quiz</title>
+
 <style>
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #101040, #6415a8);
-    color: white;
-    text-align: center;
+*{box-sizing:border-box}
+body{
+ margin:0;min-height:100vh;padding:20px 12px;
+ font-family:Arial,sans-serif;text-align:center;color:white;
+ background:linear-gradient(135deg,#080b2c,#5013a0,#111b50)
 }
-.container {
-    padding: 25px 15px;
+.container{max-width:480px;margin:auto}
+h1{color:gold;font-size:30px}
+.card{
+ background:#ffffff18;border:1px solid #ffffff35;
+ border-radius:22px;padding:22px 16px;margin:18px auto;
+ box-shadow:0 8px 25px #0005
 }
-h1 {
-    color: gold;
-    font-size: 32px;
+button{
+ border:0;border-radius:13px;padding:14px;
+ margin:6px 0;width:100%;font-size:17px;
+ font-weight:bold;cursor:pointer
 }
-.card {
-    background: rgba(255,255,255,0.12);
-    padding: 25px 15px;
-    border-radius: 20px;
-    max-width: 400px;
-    margin: 20px auto;
-}
-button {
-    border: none;
-    border-radius: 15px;
-    padding: 17px 25px;
-    font-size: 20px;
-    font-weight: bold;
-    cursor: pointer;
-}
-#tapButton {
-    background: gold;
-    color: #171047;
-    width: 100%;
-    margin-top: 15px;
-}
-#startButton {
-    background: #20e3b2;
-    color: #111;
-}
-.stats {
-    font-size: 20px;
-    margin: 15px;
-}
+.primary{background:gold;color:#171047}
+.answer{background:#fff;color:#201044}
+.answer:active{transform:scale(.98)}
+button:disabled{opacity:.55}
+.stats{display:flex;justify-content:space-around;gap:8px;flex-wrap:wrap}
+.badge{background:#ffffff20;padding:10px;border-radius:12px}
+#question{font-size:21px;line-height:1.4}
+#message{min-height:26px;font-weight:bold}
+.small{opacity:.8;font-size:14px}
 </style>
 </head>
+
 <body>
 <div class="container">
-    <h1>🏆 TAP TO CHAMPION</h1>
-    <p>Tap fast and become the champion!</p>
+ <h1>🏆 TAP CHAMPION QUIZ</h1>
+ <p>Think fast. Answer smart. Become a champion!</p>
 
-    <div class="card">
-        <div class="stats">⏱️ Time: <span id="time">15</span>s</div>
-        <div class="stats">👆 Score: <span id="score">0</span></div>
-        <div class="stats">⭐ Best Score: <span id="best">0</span></div>
+ <div class="card">
+  <div class="stats">
+   <div class="badge">⭐ Stars: <span id="stars">0</span></div>
+   <div class="badge">🏅 Score: <span id="score">0</span></div>
+   <div class="badge">⏱️ <span id="time">15</span>s</div>
+  </div>
 
-        <button id="startButton" onclick="startGame()">START GAME</button>
-        <button id="tapButton" onclick="tapGame()" disabled>TAP ME! 👆</button>
+  <h2 id="level">Level 1</h2>
+  <p id="progress">Question 1</p>
+  <h3 id="question">Ready to test your knowledge?</h3>
 
-        <h2 id="message">Press START GAME to play!</h2>
-    </div>
+  <div id="answers"></div>
+  <p id="message">Press START to begin!</p>
+  <button class="primary" id="start" onclick="startGame()">🎮 START GAME</button>
+  <button class="primary" id="next" onclick="nextQuestion()" hidden>NEXT QUESTION ➜</button>
+  <button class="answer" onclick="showBest()">🏆 View Best Score</button>
+  <p class="small">Your best score is saved on this device.</p>
+ </div>
 </div>
 
 <script>
-let score = 0;
-let time = 15;
-let playing = false;
-let timer;
+const questions = [
+ {q:"Which planet do we live on?",a:["Mars","Earth","Venus","Jupiter"],c:1},
+ {q:"What is 8 × 7?",a:["54","48","56","64"],c:2},
+ {q:"Which animal is called the King of the Jungle?",a:["Tiger","Elephant","Lion","Horse"],c:2},
+ {q:"How many days are there in a week?",a:["5","6","7","8"],c:2},
+ {q:"What is the capital of India?",a:["Mumbai","New Delhi","Kolkata","Jaipur"],c:1},
+ {q:"Which gas do plants absorb?",a:["Oxygen","Nitrogen","Carbon dioxide","Helium"],c:2},
+ {q:"What is 12 + 15?",a:["25","27","28","26"],c:1},
+ {q:"Which is the largest ocean?",a:["Indian","Arctic","Atlantic","Pacific"],c:3},
+ {q:"How many sides does a triangle have?",a:["2","3","4","5"],c:1},
+ {q:"Which star is closest to Earth?",a:["Sirius","The Sun","Polaris","Vega"],c:1},
+ {q:"Which organ pumps blood?",a:["Brain","Lungs","Heart","Kidney"],c:2},
+ {q:"What is the opposite of 'hot'?",a:["Warm","Cold","Dry","Bright"],c:1},
+ {q:"Which language is used to style web pages?",a:["HTML","CSS","SQL","Python"],c:1},
+ {q:"How many months are in a year?",a:["10","11","12","13"],c:2},
+ {q:"What is 100 divided by 4?",a:["20","25","30","40"],c:1}
+];
 
-document.getElementById("best").textContent =
-    localStorage.getItem("tapChampionBest") || 0;
+let index=0,score=0,stars=0,time=15,timer=null,playing=false,answered=false;
+const $=id=>document.getElementById(id);
 
-function startGame() {
-    clearInterval(timer);
-    score = 0;
-    time = 15;
-    playing = true;
-
-    document.getElementById("score").textContent = score;
-    document.getElementById("time").textContent = time;
-    document.getElementById("message").textContent = "Tap as fast as you can!";
-    document.getElementById("startButton").disabled = true;
-    document.getElementById("tapButton").disabled = false;
-
-    timer = setInterval(function() {
-        time--;
-        document.getElementById("time").textContent = time;
-
-        if (time <= 0) {
-            endGame();
-        }
-    }, 1000);
+function startGame(){
+ clearInterval(timer);
+ index=0;score=0;stars=0;time=15;playing=true;answered=false;
+ $("score").textContent=score;
+ $("stars").textContent=stars;
+ $("time").textContent=time;
+ $("start").hidden=true;
+ $("next").hidden=true;
+ $("message").textContent="Choose the correct answer!";
+ showQuestion();
+ timer=setInterval(()=>{
+  time--;
+  $("time").textContent=time;
+  if(time<=0) endGame();
+ },1000);
 }
 
-function tapGame() {
-    if (!playing) return;
-    score++;
-    document.getElementById("score").textContent = score;
+function showQuestion(){
+ answered=false;
+ $("next").hidden=true;
+ $("level").textContent="Level "+(Math.floor(index/5)+1);
+ $("progress").textContent="Question "+(index+1)+" of "+questions.length;
+ $("question").textContent=questions[index].q;
+ $("message").textContent="Pick your answer!";
+ $("answers").innerHTML="";
+ questions[index].a.forEach((answer,i)=>{
+  const b=document.createElement("button");
+  b.className="answer";
+  b.textContent=String.fromCharCode(65+i)+". "+answer;
+  b.onclick=()=>checkAnswer(i,b);
+  $("answers").appendChild(b);
+ });
 }
 
-function endGame() {
-    clearInterval(timer);
-    playing = false;
+function checkAnswer(choice,button){
+ if(answered||!playing)return;
+ answered=true;
+ const q=questions[index];
+ [...$("answers").children].forEach(b=>b.disabled=true);
+ if(choice===q.c){
+  score+=10;stars++;
+  $("message").textContent="✅ Correct! +10 points and ⭐";
+  button.style.background="#20e3b2";
+ }else{
+  $("message").textContent="❌ Not quite! Correct answer: "+q.a[q.c];
+  button.style.background="#ff9a9a";
+  $("answers").children[q.c].style.background="#20e3b2";
+ }
+ $("score").textContent=score;
+ $("stars").textContent=stars;
+ $("next").hidden=false;
+ $("next").textContent=index===questions.length-1?"🏆 SEE RESULTS":"NEXT QUESTION ➜";
+}
 
-    document.getElementById("tapButton").disabled = true;
-    document.getElementById("startButton").disabled = false;
-    document.getElementById("message").textContent =
-        "Game Over! Your score: " + score;
+function nextQuestion(){
+ if(!playing)return;
+ if(!answered)return;
+ index++;
+ if(index>=questions.length){endGame();return;}
+ showQuestion();
+}
 
-    let best = Number(localStorage.getItem("tapChampionBest") || 0);
+function endGame(){
+ clearInterval(timer);
+ playing=false;
+ $("answers").innerHTML="";
+ $("next").hidden=true;
+ $("start").hidden=false;
+ $("start").textContent="🔄 PLAY AGAIN";
+ const oldBest=Number(localStorage.getItem("tapChampionQuizBest")||0);
+ if(score>oldBest)localStorage.setItem("tapChampionQuizBest",score);
+ $("question").textContent="Quiz Complete! 🏆";
+ $("progress").textContent="Final Results";
+ $("level").textContent="Champion Level";
+ $("message").textContent="Score: "+score+" | Stars: "+stars+" ⭐ | Best: "+Math.max(score,oldBest);
+}
 
-    if (score > best) {
-        localStorage.setItem("tapChampionBest", score);
-        document.getElementById("best").textContent = score;
-        document.getElementById("message").textContent += " 🏆 New Record!";
-    }
+function showBest(){
+ const best=Number(localStorage.getItem("tapChampionQuizBest")||0);
+ $("message").textContent="🏆 Your best score: "+best;
 }
 </script>
 </body>
