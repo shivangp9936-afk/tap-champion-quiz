@@ -157,7 +157,9 @@ function endGame(){
  $("question").textContent="Quiz Complete! 🏆";
  $("progress").textContent="Final Results";
  $("level").textContent="Champion Level";
- $("message").textContent="Score: "+score+" | Stars: "+stars+" ⭐ | Best: "+Math.max(score,oldBest);
+ $("message").textContent="Score: "+score+" | Stars: "+let stars = Math.round((score / 20) * 5);
+stars = Math.max(0, Math.min(5, stars));
+$("message").textContent = "Score: " + score + " | Rating: " + "⭐".repeat(stars);stars+" ⭐ | Best: "+Math.max(score,oldBest);
 }
 
 function showBest(){
