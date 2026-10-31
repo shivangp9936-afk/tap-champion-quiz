@@ -8,267 +8,353 @@
 <style>
 *{box-sizing:border-box}
 body{
- margin:0;padding:18px;
- font-family:Arial,sans-serif;
- color:white;text-align:center;
- background:linear-gradient(135deg,#080b2c,#5013a0,#111b50);
+ margin:0;font-family:Arial,sans-serif;color:white;text-align:center;
+ background:linear-gradient(135deg,#090923,#391078,#7617a8);
+ min-height:100vh;padding:15px
 }
-.container{max-width:480px;margin:auto}
-h1{color:gold;font-size:30px}
+h1{color:#ffd700;font-size:32px;text-shadow:0 0 15px #ffae00}
+h2{color:#ffe082}
 .card{
- background:#ffffff18;
- border:1px solid #ffffff35;
- border-radius:20px;
- padding:20px 15px;margin:16px auto;
+ max-width:600px;margin:15px auto;padding:20px;
+ background:#171638;border:1px solid #6b55a5;
+ border-radius:20px;box-shadow:0 8px 25px #0005
 }
-input,button{
- width:100%;padding:13px;margin:7px 0;
- border:0;border-radius:12px;font-size:16px;
+button,input{
+ width:100%;padding:13px;margin:7px 0;border-radius:10px;
+ border:0;font-size:16px
 }
-button{
- background:#ffd700;color:#17112b;
- font-weight:bold;cursor:pointer;
-}
-.secondary{background:#ffffff;color:#222}
-.hidden{display:none}
-#photo{
- width:85px;height:85px;border-radius:50%;
- object-fit:cover;border:3px solid gold;
-}
-.option{background:white;color:#222}
-#leaderboard{text-align:left}
-.small{font-size:13px;color:#ddd}
+button{background:#8b35e8;color:white;font-weight:bold;cursor:pointer}
+button:active{transform:scale(.98)}
+input{background:#fff;color:#111}
+.gold{background:#b77a00}
+.diamond{background:#0878a5}
+.option{background:#30275f;text-align:left}
+.correct{background:#13813b}
+.wrong{background:#b52636}
+.small{font-size:13px;color:#ccc;line-height:1.5}
+.stat{display:inline-block;background:#292452;border-radius:12px;padding:12px;margin:4px;min-width:90px}
+.stat strong{display:block;color:#ffd700;font-size:22px}
+.badge{color:#ffd700;font-weight:bold}
+.hidden{display:none!important}
 </style>
 </head>
 
 <body>
-<div class="container">
+
 <h1>🏆 TAP TO CHAMPION</h1>
-<p>Play • Learn • Become Champion</p>
+<p>🎮 Play • Learn • Become Champion</p>
 
-<div class="card" id="auth">
-<h2>Create Account</h2>
-<input id="name" placeholder="Enter your name">
-<input id="email" type="email" placeholder="Enter email">
-<input id="password" type="password" placeholder="Create password">
-<label>Choose profile photo</label>
-<input id="photoFile" type="file" accept="image/*">
-<button onclick="register()">🆕 Create Account</button>
+<div class="card" id="welcome">
+<h2>Welcome, Champion! 👑</h2>
+<p class="small">Enter your player name to start.</p>
+<input id="playerName" placeholder="Enter your name" maxlength="24">
+<button onclick="startGame()">🚀 START GAME</button>
+</div>
 
-<hr>
-<h2>Login</h2>
-<input id="loginEmail" type="email" placeholder="Your email">
-<input id="loginPassword" type="password" placeholder="Your password">
-<button onclick="login()">🔑 Login</button>
+<div class="hidden" id="dashboard">
 
+<div class="card">
+<h2>👑 Player Dashboard</h2>
+<p>Player: <b id="name"></b></p>
+<p>Game ID: <b id="gameId"></b></p>
+
+<div class="stat">⭐ Points<strong id="points">0</strong></div>
+<div class="stat">🏆 Rank<strong id="rank">—</strong></div>
+
+<p id="badge" class="badge">Free Player</p>
+<button onclick="startQuiz()">🎮 PLAY QUIZ</button>
+</div>
+
+<div class="card">
+<h2>⭐ STARS PREMIUM</h2>
+<h1>₹49/month</h1>
+<p>⭐ Stars Badge</p>
+<p>🟡 Gold Profile Theme</p>
+<p>📊 Extra Stats</p>
+<p>🧠 Special Quiz Pack</p>
+<button class="gold" onclick="choosePremium('Stars')">
+SELECT STARS ⭐
+</button>
+</div>
+
+<div class="card">
+<h2>💎 DIAMOND PREMIUM</h2>
+<h1>₹99/month</h1>
+<p>💎 Diamond Badge</p>
+<p>✨ Special Theme</p>
+<p>📊 Expanded Stats</p>
+<p>🧠 Special Quiz Pack</p>
+<p>⭐ Includes Stars Benefits</p>
+<button class="diamond" onclick="choosePremium('Diamond')">
+SELECT DIAMOND 💎
+</button>
 <p class="small">
-Google/Facebook login और सुरक्षित ऑनलाइन अकाउंट
-अगले चरण में सेटअप करेंगे।
+Demo only: These buttons do not charge money.
+Real payments need a secure payment system.
 </p>
 </div>
 
-<div class="card hidden" id="profile">
-<img id="photo" alt="Profile photo"
-src="https://placehold.co/100x100?text=Player">
-<h2 id="playerName"></h2>
-<p id="playerId"></p>
-<p>🏆 Rank: <b id="rank">#1</b></p>
-<p>⭐ Score: <b id="score">0</b></p>
-<button onclick="startGame()">🎮 Play Game</button>
-<button class="secondary" onclick="showBoard()">🏆 Leaderboard</button>
-<button class="secondary" onclick="logout()">Logout</button>
+<div class="card">
+<h2>🏆 LEADERBOARD</h2>
+<ol id="leaderboard"></ol>
+<p class="small">This demo leaderboard works only in this browser.</p>
+</div>
 </div>
 
-<div class="card hidden" id="game">
-<h2>🧠 Quiz Challenge</h2>
-<p id="progress"></p>
-<h3 id="question"></h3>
+<div class="card hidden" id="quiz">
+<h2 id="questionNo">Question 1</h2>
+<div class="stat">⏱️ Time Left<strong id="timer">15</strong></div>
+<h2 id="question"></h2>
 <div id="options"></div>
 <p id="feedback"></p>
-<button class="secondary" onclick="nextQuestion()">Next Question ➜</button>
-<button class="secondary" onclick="backProfile()">Back to Profile</button>
+<button id="next" class="hidden" onclick="nextQuestion()">NEXT QUESTION ➜</button>
+<button onclick="quitQuiz()" style="background:#555">QUIT QUIZ</button>
 </div>
 
-<div class="card hidden" id="board">
-<h2>🏆 Leaderboard</h2>
-<div id="leaderboard"></div>
-<button onclick="backProfile()">Back</button>
-</div>
-
+<div class="card hidden" id="result">
+<h2>🎉 QUIZ SUMMARY</h2>
+<h1>🏆 Champion!</h1>
+<p id="summary"></p>
+<button onclick="startQuiz()">PLAY AGAIN 🔥</button>
+<button onclick="goHome()" style="background:#555">DASHBOARD</button>
 </div>
 
 <script>
 const $ = id => document.getElementById(id);
 
-let currentUser = null;
-let currentQuestion = null;
-let asked = new Set();
+let player = {
+ name:"",
+ id:"",
+ points:0,
+ premium:"Free"
+};
 
-const questions = [
-{q:"How many days are there in a week?",a:["5","6","7","8"],c:2},
-{q:"What is the capital of India?",a:["Mumbai","New Delhi","Kolkata","Jaipur"],c:1},
-{q:"Which gas do plants absorb?",a:["Oxygen","Nitrogen","Carbon dioxide","Hydrogen"],c:2},
-{q:"What is 12 × 5?",a:["50","55","60","65"],c:2},
-{q:"Which planet is known as the Red Planet?",a:["Earth","Mars","Venus","Jupiter"],c:1},
-{q:"How many sides does a triangle have?",a:["2","3","4","5"],c:1},
-{q:"Which is the largest ocean?",a:["Indian","Arctic","Atlantic","Pacific"],c:3},
-{q:"What is H2O commonly called?",a:["Salt","Water","Oxygen","Sugar"],c:1},
-{q:"Which organ pumps blood?",a:["Lungs","Brain","Heart","Kidney"],c:2},
-{q:"What is 100 divided by 4?",a:["20","25","30","40"],c:1},
-{q:"Which star is closest to Earth?",a:["Sirius","Sun","Polaris","Vega"],c:1},
-{q:"How many months are in a year?",a:["10","11","12","13"],c:2},
-{q:"Which language structures web pages?",a:["HTML","SQL","C","Python"],c:0},
-{q:"What is the boiling point of water at sea level?",a:["50°C","75°C","100°C","150°C"],c:2},
-{q:"Which is a mammal?",a:["Shark","Frog","Dolphin","Crocodile"],c:2},
-{q:"What is 9 × 9?",a:["72","81","89","99"],c:1},
-{q:"Which is the largest planet?",a:["Earth","Saturn","Mars","Jupiter"],c:3},
-{q:"How many letters are in the English alphabet?",a:["24","25","26","27"],c:2},
-{q:"Which device is used to type on a computer?",a:["Monitor","Keyboard","Speaker","Printer"],c:1},
-{q:"Which vitamin can the body make using sunlight?",a:["Vitamin A","Vitamin B12","Vitamin C","Vitamin D"],c:3}
+let timerInterval=null;
+let timeLeft=15;
+let answered=false;
+let currentQuestion=null;
+let questionCount=0;
+let correctCount=0;
+let sessionPoints=0;
+
+const questions=[
+ {q:"How many days are in a week?",a:["5","6","7","8"],c:2},
+ {q:"What is the capital of India?",a:["Mumbai","New Delhi","Kolkata","Jaipur"],c:1},
+ {q:"Which gas do plants absorb?",a:["Oxygen","Nitrogen","Carbon dioxide","Hydrogen"],c:2},
+ {q:"How many sides does a triangle have?",a:["2","3","4","5"],c:1},
+ {q:"Which planet is called the Red Planet?",a:["Earth","Mars","Venus","Jupiter"],c:1},
+ {q:"What is 9 × 6?",a:["45","54","63","56"],c:1},
+ {q:"Which is the largest ocean?",a:["Atlantic","Indian","Arctic","Pacific"],c:3},
+ {q:"Which organ pumps blood?",a:["Lungs","Heart","Brain","Kidney"],c:1},
+ {q:"What is the formula of water?",a:["CO2","O2","H2O","NaCl"],c:2},
+ {q:"How many months are in a year?",a:["10","11","12","13"],c:2},
+ {q:"Which star is nearest to Earth?",a:["Sirius","Sun","Polaris","Vega"],c:1},
+ {q:"Which language adds interactivity to web pages?",a:["JavaScript","C only","SQL","None"],c:0},
+ {q:"What is 144 ÷ 12?",a:["10","11","12","14"],c:2},
+ {q:"Which part of a plant absorbs water?",a:["Flower","Leaf","Root","Fruit"],c:2},
+ {q:"What is the largest mammal?",a:["Elephant","Blue whale","Giraffe","Hippo"],c:1},
+ {q:"How many minutes are in an hour?",a:["30","45","60","90"],c:2},
+ {q:"The Sun rises in the:",a:["North","South","East","West"],c:2},
+ {q:"Which is a programming language?",a:["JavaScript","HTTP","Wi-Fi","Monitor"],c:0},
+ {q:"Water freezes at:",a:["0°C","10°C","50°C","100°C"],c:0},
+ {q:"Which device is used to type?",a:["Monitor","Keyboard","Speaker","Printer"],c:1}
 ];
 
-function getUsers(){
- try{return JSON.parse(localStorage.getItem("tc_users")||"[]")}
- catch(e){return []}
+function save(){
+ localStorage.setItem("tapChampionPlayer",JSON.stringify(player));
+ updateDashboard();
 }
-function saveUsers(users){
- localStorage.setItem("tc_users",JSON.stringify(users));
+
+function load(){
+ try{
+  const data=JSON.parse(localStorage.getItem("tapChampionPlayer"));
+  if(data){
+   player=data;
+   $("welcome").classList.add("hidden");
+   $("dashboard").classList.remove("hidden");
+   updateDashboard();
+  }
+ }catch(e){}
 }
-function makeId(){
- return "TC"+Date.now().toString().slice(-8);
-}
-function register(){
- const name=$("name").value.trim();
- const email=$("email").value.trim().toLowerCase();
- const password=$("password").value;
- if(!name||!email||password.length<6){
-  alert("Name, email भरें और कम से कम 6 अक्षर का password रखें।");
-  return;
- }
- const users=getUsers();
- if(users.some(u=>u.email===email)){
-  alert("इस email का account पहले से है। Login करें।");
-  return;
- }
- const user={
-  id:makeId(),name,email,password,
-  score:0,photo:"",rank:0
- };
- const file=$("photoFile").files[0];
- if(file){
-  const reader=new FileReader();
-  reader.onload=()=>{
-   user.photo=reader.result;
-   users.push(user);
-   saveUsers(users);
-   openUser(user);
-  };
-  reader.readAsDataURL(file);
- }else{
-  users.push(user);
-  saveUsers(users);
-  openUser(user);
- }
-}
-function login(){
- const email=$("loginEmail").value.trim().toLowerCase();
- const password=$("loginPassword").value;
- const user=getUsers().find(u=>u.email===email&&u.password===password);
- if(!user){alert("Account नहीं मिला या जानकारी गलत है।");return;}
- openUser(user);
-}
-function openUser(user){
- currentUser=user;
- $("auth").classList.add("hidden");
- $("game").classList.add("hidden");
- $("board").classList.add("hidden");
- $("profile").classList.remove("hidden");
- updateProfile();
-}
-function updateProfile(){
- const users=getUsers().sort((a,b)=>b.score-a.score);
- const rank=users.findIndex(u=>u.id===currentUser.id)+1;
- $("playerName").textContent=currentUser.name;
- $("playerId").textContent="Game ID: "+currentUser.id;
- $("score").textContent=currentUser.score;
- $("rank").textContent=rank>0?"#"+rank:"—";
- $("photo").src=currentUser.photo||"https://placehold.co/100x100?text=Player";
-}
+
 function startGame(){
- $("profile").classList.add("hidden");
- $("board").classList.add("hidden");
- $("game").classList.remove("hidden");
- asked.clear();
- nextQuestion();
+ let n=$("playerName").value.trim();
+ if(!n){alert("Please enter your name!");return}
+ player.name=n;
+ player.id=player.id||"TC-"+Math.random().toString(36).slice(2,9).toUpperCase();
+ save();
+ $("welcome").classList.add("hidden");
+ $("dashboard").classList.remove("hidden");
 }
-function nextQuestion(){
- $("feedback").textContent="";
- if(asked.size===questions.length){
-  asked.clear();
-  $("progress").textContent="सभी सवाल पूरे! फिर से खेलो।";
+
+function updateDashboard(){
+ $("name").textContent=player.name;
+ $("gameId").textContent=player.id;
+ $("points").textContent=player.points;
+ $("rank").textContent=player.points>0?"#1":"—";
+ $("badge").textContent=
+ player.premium==="Diamond"?"💎 Diamond Premium":
+ player.premium==="Stars"?"⭐ Stars Premium":"Free Player";
+ $("leaderboard").innerHTML="";
+ let li=document.createElement("li");
+ li.textContent=player.name+" — "+player.points+" points";
+ $("leaderboard").appendChild(li);
+}
+
+function choosePremium(plan){
+ if(confirm("Demo only: select "+plan+" Premium? No payment will be taken.")){
+  if(plan==="Stars"&&player.premium==="Diamond"){
+   alert("Diamond already includes Stars benefits!");
+   return;
+  }
+  player.premium=plan;
+  save();
+  alert(plan+" demo selected! No money was charged.");
  }
- let available=questions.map((q,i)=>i).filter(i=>!asked.has(i));
- if(!available.length){
-  $("question").textContent="🎉 राउंड पूरा हुआ!";
-  $("options").innerHTML="";
-  return;
+}
+
+function makeQuestion(){
+ // Unlimited randomized maths questions and general knowledge.
+ if(Math.random()<0.65){
+  let type=Math.floor(Math.random()*4);
+  let a,b,answer,text;
+
+  if(type===0){
+   a=Math.floor(Math.random()*100)+1;
+   b=Math.floor(Math.random()*100)+1;
+   answer=a+b;text="What is "+a+" + "+b+"?";
+  }else if(type===1){
+   a=Math.floor(Math.random()*100)+1;
+   b=Math.floor(Math.random()*a)+1;
+   answer=a-b;text="What is "+a+" − "+b+"?";
+  }else if(type===2){
+   a=Math.floor(Math.random()*12)+1;
+   b=Math.floor(Math.random()*12)+1;
+   answer=a*b;text="What is "+a+" × "+b+"?";
+  }else{
+   b=Math.floor(Math.random()*12)+1;
+   answer=Math.floor(Math.random()*12)+1;
+   a=b*answer;
+   text="What is "+a+" ÷ "+b+"?";
+  }
+
+  let choices=new Set([answer]);
+  while(choices.size<4){
+   let wrong=answer+Math.floor(Math.random()*21)-10;
+   if(wrong>=0&&wrong!==answer)choices.add(wrong);
+  }
+  let arr=[...choices].sort(()=>Math.random()-.5);
+  return {q:text,a:arr.map(String),c:arr.indexOf(answer)};
  }
- const i=available[Math.floor(Math.random()*available.length)];
- asked.add(i);
- currentQuestion=questions[i];
- $("progress").textContent="Question "+asked.size;
+
+ return questions[Math.floor(Math.random()*questions.length)];
+}
+
+function startQuiz(){
+ questionCount=0;
+ correctCount=0;
+ sessionPoints=0;
+ $("dashboard").classList.add("hidden");
+ $("result").classList.add("hidden");
+ $("quiz").classList.remove("hidden");
+ showQuestion();
+}
+
+function stopTimer(){
+ if(timerInterval){
+  clearInterval(timerInterval);
+  timerInterval=null;
+ }
+}
+
+function showQuestion(){
+ stopTimer();
+ answered=false;
+ timeLeft=15;
+ questionCount++;
+ currentQuestion=makeQuestion();
+
+ $("questionNo").textContent="Question "+questionCount+" — Unlimited Mode";
  $("question").textContent=currentQuestion.q;
+ $("timer").textContent=timeLeft;
+ $("feedback").textContent="";
+ $("next").classList.add("hidden");
  $("options").innerHTML="";
+
  currentQuestion.a.forEach((answer,index)=>{
-  const btn=document.createElement("button");
+  let btn=document.createElement("button");
   btn.className="option";
-  btn.textContent=answer;
-  btn.onclick=()=>checkAnswer(index);
+  btn.textContent=String.fromCharCode(65+index)+". "+answer;
+  btn.onclick=()=>selectAnswer(index,btn);
   $("options").appendChild(btn);
  });
+
+ timerInterval=setInterval(()=>{
+  timeLeft--;
+  $("timer").textContent=timeLeft;
+
+  if(timeLeft<=0){
+   stopTimer();
+   if(!answered){
+    answered=true;
+    disableOptions();
+    $("feedback").textContent="⏰ Time is up!";
+    $("next").classList.remove("hidden");
+   }
+  }
+ },1000);
 }
-function checkAnswer(index){
- const buttons=$("options").querySelectorAll("button");
- buttons.forEach(b=>b.disabled=true);
+
+function disableOptions(){
+ [...$("options").children].forEach(b=>b.disabled=true);
+}
+
+function selectAnswer(index,btn){
+ if(answered)return;
+ answered=true;
+ stopTimer();
+ disableOptions();
+
  if(index===currentQuestion.c){
-  currentUser.score+=10;
-  $("feedback").textContent="✅ सही जवाब! +10 points";
+  correctCount++;
+  player.points+=10;
+  sessionPoints+=10;
+  btn.classList.add("correct");
+  $("feedback").textContent="✅ Correct! +10 Points";
  }else{
-  $("feedback").textContent="❌ गलत जवाब। सही उत्तर: "+currentQuestion.a[currentQuestion.c];
+  btn.classList.add("wrong");
+  $("options").children[currentQuestion.c].classList.add("correct");
+  $("feedback").textContent="❌ Wrong answer!";
  }
- const users=getUsers();
- const i=users.findIndex(u=>u.id===currentUser.id);
- if(i>=0)users[i]=currentUser;
- saveUsers(users);
- updateProfile();
+
+ save();
+ $("next").classList.remove("hidden");
 }
-function showBoard(){
- $("profile").classList.add("hidden");
- $("board").classList.remove("hidden");
- const users=getUsers().sort((a,b)=>b.score-a.score);
- $("leaderboard").innerHTML=users.map((u,i)=>
-  `<p>${i===0?"🥇":i===1?"🥈":i===2?"🥉":"🏅"} #${i+1} — ${escapeText(u.name)}<br>
-  ID: ${escapeText(u.id)} | Score: ${u.score}</p><hr>`
- ).join("")||"अभी कोई खिलाड़ी नहीं है।";
+
+function nextQuestion(){
+ showQuestion();
 }
-function escapeText(s){
- return String(s).replace(/[&<>"']/g,c=>({
- "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
- }[c]));
+
+function quitQuiz(){
+ stopTimer();
+ $("quiz").classList.add("hidden");
+ $("result").classList.remove("hidden");
+ $("summary").textContent=
+ player.name+", you answered "+questionCount+
+ " questions and got "+correctCount+
+ " correct. You earned "+sessionPoints+
+ " points in this session!";
+ save();
 }
-function backProfile(){
- $("game").classList.add("hidden");
- $("board").classList.add("hidden");
- $("profile").classList.remove("hidden");
- updateProfile();
+
+function goHome(){
+ $("result").classList.add("hidden");
+ $("dashboard").classList.remove("hidden");
+ updateDashboard();
 }
-function logout(){
- currentUser=null;
- $("profile").classList.add("hidden");
- $("game").classList.add("hidden");
- $("board").classList.add("hidden");
- $("auth").classList.remove("hidden");
-}
+
+load();
 </script>
+
 </body>
 </html>
