@@ -3,168 +3,271 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tap Champion Quiz</title>
+<title>Tap to Champion</title>
 
 <style>
 *{box-sizing:border-box}
 body{
- margin:0;min-height:100vh;padding:20px 12px;
- font-family:Arial,sans-serif;text-align:center;color:white;
- background:linear-gradient(135deg,#080b2c,#5013a0,#111b50)
+ margin:0;padding:18px;
+ font-family:Arial,sans-serif;
+ color:white;text-align:center;
+ background:linear-gradient(135deg,#080b2c,#5013a0,#111b50);
 }
 .container{max-width:480px;margin:auto}
 h1{color:gold;font-size:30px}
 .card{
- background:#ffffff18;border:1px solid #ffffff35;
- border-radius:22px;padding:22px 16px;margin:18px auto;
- box-shadow:0 8px 25px #0005
+ background:#ffffff18;
+ border:1px solid #ffffff35;
+ border-radius:20px;
+ padding:20px 15px;margin:16px auto;
+}
+input,button{
+ width:100%;padding:13px;margin:7px 0;
+ border:0;border-radius:12px;font-size:16px;
 }
 button{
- border:0;border-radius:13px;padding:14px;
- margin:6px 0;width:100%;font-size:17px;
- font-weight:bold;cursor:pointer
+ background:#ffd700;color:#17112b;
+ font-weight:bold;cursor:pointer;
 }
-.primary{background:gold;color:#171047}
-.answer{background:#fff;color:#201044}
-.answer:active{transform:scale(.98)}
-button:disabled{opacity:.55}
-.stats{display:flex;justify-content:space-around;gap:8px;flex-wrap:wrap}
-.badge{background:#ffffff20;padding:10px;border-radius:12px}
-#question{font-size:21px;line-height:1.4}
-#message{min-height:26px;font-weight:bold}
-.small{opacity:.8;font-size:14px}
+.secondary{background:#ffffff;color:#222}
+.hidden{display:none}
+#photo{
+ width:85px;height:85px;border-radius:50%;
+ object-fit:cover;border:3px solid gold;
+}
+.option{background:white;color:#222}
+#leaderboard{text-align:left}
+.small{font-size:13px;color:#ddd}
 </style>
 </head>
 
 <body>
 <div class="container">
- <h1>🏆 TAP CHAMPION QUIZ</h1>
- <p>Think fast. Answer smart. Become a champion!</p>
+<h1>🏆 TAP TO CHAMPION</h1>
+<p>Play • Learn • Become Champion</p>
 
- <div class="card">
-  <div class="stats">
-   <div class="badge">⭐ Stars: <span id="stars">0</span></div>
-   <div class="badge">🏅 Score: <span id="score">0</span></div>
-   <div class="badge">⏱️ <span id="time">15</span>s</div>
-  </div>
+<div class="card" id="auth">
+<h2>Create Account</h2>
+<input id="name" placeholder="Enter your name">
+<input id="email" type="email" placeholder="Enter email">
+<input id="password" type="password" placeholder="Create password">
+<label>Choose profile photo</label>
+<input id="photoFile" type="file" accept="image/*">
+<button onclick="register()">🆕 Create Account</button>
 
-  <h2 id="level">Level 1</h2>
-  <p id="progress">Question 1</p>
-  <h3 id="question">Ready to test your knowledge?</h3>
+<hr>
+<h2>Login</h2>
+<input id="loginEmail" type="email" placeholder="Your email">
+<input id="loginPassword" type="password" placeholder="Your password">
+<button onclick="login()">🔑 Login</button>
 
-  <div id="answers"></div>
-  <p id="message">Press START to begin!</p>
-  <button class="primary" id="start" onclick="startGame()">🎮 START GAME</button>
-  <button class="primary" id="next" onclick="nextQuestion()" hidden>NEXT QUESTION ➜</button>
-  <button class="answer" onclick="showBest()">🏆 View Best Score</button>
-  <p class="small">Your best score is saved on this device.</p>
- </div>
+<p class="small">
+Google/Facebook login और सुरक्षित ऑनलाइन अकाउंट
+अगले चरण में सेटअप करेंगे।
+</p>
+</div>
+
+<div class="card hidden" id="profile">
+<img id="photo" alt="Profile photo"
+src="https://placehold.co/100x100?text=Player">
+<h2 id="playerName"></h2>
+<p id="playerId"></p>
+<p>🏆 Rank: <b id="rank">#1</b></p>
+<p>⭐ Score: <b id="score">0</b></p>
+<button onclick="startGame()">🎮 Play Game</button>
+<button class="secondary" onclick="showBoard()">🏆 Leaderboard</button>
+<button class="secondary" onclick="logout()">Logout</button>
+</div>
+
+<div class="card hidden" id="game">
+<h2>🧠 Quiz Challenge</h2>
+<p id="progress"></p>
+<h3 id="question"></h3>
+<div id="options"></div>
+<p id="feedback"></p>
+<button class="secondary" onclick="nextQuestion()">Next Question ➜</button>
+<button class="secondary" onclick="backProfile()">Back to Profile</button>
+</div>
+
+<div class="card hidden" id="board">
+<h2>🏆 Leaderboard</h2>
+<div id="leaderboard"></div>
+<button onclick="backProfile()">Back</button>
+</div>
+
 </div>
 
 <script>
+const $ = id => document.getElementById(id);
+
+let currentUser = null;
+let currentQuestion = null;
+let asked = new Set();
+
 const questions = [
- {q:"Which planet do we live on?",a:["Mars","Earth","Venus","Jupiter"],c:1},
- {q:"What is 8 × 7?",a:["54","48","56","64"],c:2},
- {q:"Which animal is called the King of the Jungle?",a:["Tiger","Elephant","Lion","Horse"],c:2},
- {q:"How many days are there in a week?",a:["5","6","7","8"],c:2},
- {q:"What is the capital of India?",a:["Mumbai","New Delhi","Kolkata","Jaipur"],c:1},
- {q:"Which gas do plants absorb?",a:["Oxygen","Nitrogen","Carbon dioxide","Helium"],c:2},
- {q:"What is 12 + 15?",a:["25","27","28","26"],c:1},
- {q:"Which is the largest ocean?",a:["Indian","Arctic","Atlantic","Pacific"],c:3},
- {q:"How many sides does a triangle have?",a:["2","3","4","5"],c:1},
- {q:"Which star is closest to Earth?",a:["Sirius","The Sun","Polaris","Vega"],c:1},
- {q:"Which organ pumps blood?",a:["Brain","Lungs","Heart","Kidney"],c:2},
- {q:"What is the opposite of 'hot'?",a:["Warm","Cold","Dry","Bright"],c:1},
- {q:"Which language is used to style web pages?",a:["HTML","CSS","SQL","Python"],c:1},
- {q:"How many months are in a year?",a:["10","11","12","13"],c:2},
- {q:"What is 100 divided by 4?",a:["20","25","30","40"],c:1}
+{q:"How many days are there in a week?",a:["5","6","7","8"],c:2},
+{q:"What is the capital of India?",a:["Mumbai","New Delhi","Kolkata","Jaipur"],c:1},
+{q:"Which gas do plants absorb?",a:["Oxygen","Nitrogen","Carbon dioxide","Hydrogen"],c:2},
+{q:"What is 12 × 5?",a:["50","55","60","65"],c:2},
+{q:"Which planet is known as the Red Planet?",a:["Earth","Mars","Venus","Jupiter"],c:1},
+{q:"How many sides does a triangle have?",a:["2","3","4","5"],c:1},
+{q:"Which is the largest ocean?",a:["Indian","Arctic","Atlantic","Pacific"],c:3},
+{q:"What is H2O commonly called?",a:["Salt","Water","Oxygen","Sugar"],c:1},
+{q:"Which organ pumps blood?",a:["Lungs","Brain","Heart","Kidney"],c:2},
+{q:"What is 100 divided by 4?",a:["20","25","30","40"],c:1},
+{q:"Which star is closest to Earth?",a:["Sirius","Sun","Polaris","Vega"],c:1},
+{q:"How many months are in a year?",a:["10","11","12","13"],c:2},
+{q:"Which language structures web pages?",a:["HTML","SQL","C","Python"],c:0},
+{q:"What is the boiling point of water at sea level?",a:["50°C","75°C","100°C","150°C"],c:2},
+{q:"Which is a mammal?",a:["Shark","Frog","Dolphin","Crocodile"],c:2},
+{q:"What is 9 × 9?",a:["72","81","89","99"],c:1},
+{q:"Which is the largest planet?",a:["Earth","Saturn","Mars","Jupiter"],c:3},
+{q:"How many letters are in the English alphabet?",a:["24","25","26","27"],c:2},
+{q:"Which device is used to type on a computer?",a:["Monitor","Keyboard","Speaker","Printer"],c:1},
+{q:"Which vitamin can the body make using sunlight?",a:["Vitamin A","Vitamin B12","Vitamin C","Vitamin D"],c:3}
 ];
 
-let index=0,score=0,stars=0,time=15,timer=null,playing=false,answered=false;
-const $=id=>document.getElementById(id);
-
-function startGame(){
- clearInterval(timer);
- index=0;score=0;stars=0;time=15;playing=true;answered=false;
- $("score").textContent=score;
- $("stars").textContent=stars;
- $("time").textContent=time;
- $("start").hidden=true;
- $("next").hidden=true;
- $("message").textContent="Choose the correct answer!";
- showQuestion();
- timer=setInterval(()=>{
-  time--;
-  $("time").textContent=time;
-  if(time<=0) endGame();
- },1000);
+function getUsers(){
+ try{return JSON.parse(localStorage.getItem("tc_users")||"[]")}
+ catch(e){return []}
 }
-
-function showQuestion(){
- answered=false;
- $("next").hidden=true;
- $("level").textContent="Level "+(Math.floor(index/5)+1);
- $("progress").textContent="Question "+(index+1)+" of "+questions.length;
- $("question").textContent=questions[index].q;
- $("message").textContent="Pick your answer!";
- $("answers").innerHTML="";
- questions[index].a.forEach((answer,i)=>{
-  const b=document.createElement("button");
-  b.className="answer";
-  b.textContent=String.fromCharCode(65+i)+". "+answer;
-  b.onclick=()=>checkAnswer(i,b);
-  $("answers").appendChild(b);
+function saveUsers(users){
+ localStorage.setItem("tc_users",JSON.stringify(users));
+}
+function makeId(){
+ return "TC"+Date.now().toString().slice(-8);
+}
+function register(){
+ const name=$("name").value.trim();
+ const email=$("email").value.trim().toLowerCase();
+ const password=$("password").value;
+ if(!name||!email||password.length<6){
+  alert("Name, email भरें और कम से कम 6 अक्षर का password रखें।");
+  return;
+ }
+ const users=getUsers();
+ if(users.some(u=>u.email===email)){
+  alert("इस email का account पहले से है। Login करें।");
+  return;
+ }
+ const user={
+  id:makeId(),name,email,password,
+  score:0,photo:"",rank:0
+ };
+ const file=$("photoFile").files[0];
+ if(file){
+  const reader=new FileReader();
+  reader.onload=()=>{
+   user.photo=reader.result;
+   users.push(user);
+   saveUsers(users);
+   openUser(user);
+  };
+  reader.readAsDataURL(file);
+ }else{
+  users.push(user);
+  saveUsers(users);
+  openUser(user);
+ }
+}
+function login(){
+ const email=$("loginEmail").value.trim().toLowerCase();
+ const password=$("loginPassword").value;
+ const user=getUsers().find(u=>u.email===email&&u.password===password);
+ if(!user){alert("Account नहीं मिला या जानकारी गलत है।");return;}
+ openUser(user);
+}
+function openUser(user){
+ currentUser=user;
+ $("auth").classList.add("hidden");
+ $("game").classList.add("hidden");
+ $("board").classList.add("hidden");
+ $("profile").classList.remove("hidden");
+ updateProfile();
+}
+function updateProfile(){
+ const users=getUsers().sort((a,b)=>b.score-a.score);
+ const rank=users.findIndex(u=>u.id===currentUser.id)+1;
+ $("playerName").textContent=currentUser.name;
+ $("playerId").textContent="Game ID: "+currentUser.id;
+ $("score").textContent=currentUser.score;
+ $("rank").textContent=rank>0?"#"+rank:"—";
+ $("photo").src=currentUser.photo||"https://placehold.co/100x100?text=Player";
+}
+function startGame(){
+ $("profile").classList.add("hidden");
+ $("board").classList.add("hidden");
+ $("game").classList.remove("hidden");
+ asked.clear();
+ nextQuestion();
+}
+function nextQuestion(){
+ $("feedback").textContent="";
+ if(asked.size===questions.length){
+  asked.clear();
+  $("progress").textContent="सभी सवाल पूरे! फिर से खेलो।";
+ }
+ let available=questions.map((q,i)=>i).filter(i=>!asked.has(i));
+ if(!available.length){
+  $("question").textContent="🎉 राउंड पूरा हुआ!";
+  $("options").innerHTML="";
+  return;
+ }
+ const i=available[Math.floor(Math.random()*available.length)];
+ asked.add(i);
+ currentQuestion=questions[i];
+ $("progress").textContent="Question "+asked.size;
+ $("question").textContent=currentQuestion.q;
+ $("options").innerHTML="";
+ currentQuestion.a.forEach((answer,index)=>{
+  const btn=document.createElement("button");
+  btn.className="option";
+  btn.textContent=answer;
+  btn.onclick=()=>checkAnswer(index);
+  $("options").appendChild(btn);
  });
 }
-
-function checkAnswer(choice,button){
- if(answered||!playing)return;
- answered=true;
- const q=questions[index];
- [...$("answers").children].forEach(b=>b.disabled=true);
- if(choice===q.c){
-  score+=10;stars++;
-  $("message").textContent="✅ Correct! +10 points and ⭐";
-  button.style.background="#20e3b2";
+function checkAnswer(index){
+ const buttons=$("options").querySelectorAll("button");
+ buttons.forEach(b=>b.disabled=true);
+ if(index===currentQuestion.c){
+  currentUser.score+=10;
+  $("feedback").textContent="✅ सही जवाब! +10 points";
  }else{
-  $("message").textContent="❌ Not quite! Correct answer: "+q.a[q.c];
-  button.style.background="#ff9a9a";
-  $("answers").children[q.c].style.background="#20e3b2";
+  $("feedback").textContent="❌ गलत जवाब। सही उत्तर: "+currentQuestion.a[currentQuestion.c];
  }
- $("score").textContent=score;
- $("stars").textContent=stars;
- $("next").hidden=false;
- $("next").textContent=index===questions.length-1?"🏆 SEE RESULTS":"NEXT QUESTION ➜";
+ const users=getUsers();
+ const i=users.findIndex(u=>u.id===currentUser.id);
+ if(i>=0)users[i]=currentUser;
+ saveUsers(users);
+ updateProfile();
 }
-
-function nextQuestion(){
- if(!playing)return;
- if(!answered)return;
- index++;
- if(index>=questions.length){endGame();return;}
- showQuestion();
+function showBoard(){
+ $("profile").classList.add("hidden");
+ $("board").classList.remove("hidden");
+ const users=getUsers().sort((a,b)=>b.score-a.score);
+ $("leaderboard").innerHTML=users.map((u,i)=>
+  `<p>${i===0?"🥇":i===1?"🥈":i===2?"🥉":"🏅"} #${i+1} — ${escapeText(u.name)}<br>
+  ID: ${escapeText(u.id)} | Score: ${u.score}</p><hr>`
+ ).join("")||"अभी कोई खिलाड़ी नहीं है।";
 }
-
-function endGame(){
- clearInterval(timer);
- playing=false;
- $("answers").innerHTML="";
- $("next").hidden=true;
- $("start").hidden=false;
- $("start").textContent="🔄 PLAY AGAIN";
- const oldBest=Number(localStorage.getItem("tapChampionQuizBest")||0);
- if(score>oldBest)localStorage.setItem("tapChampionQuizBest",score);
- $("question").textContent="Quiz Complete! 🏆";
- $("progress").textContent="Final Results";
- $("level").textContent="Champion Level";
- $("message").textContent="Score: "+score+" | Stars: "+let stars = Math.round((score / 20) * 5);
-stars = Math.max(0, Math.min(5, stars));
-$("message").textContent = "Score: " + score + " | Rating: " + "⭐".repeat(stars);stars+" ⭐ | Best: "+Math.max(score,oldBest);
+function escapeText(s){
+ return String(s).replace(/[&<>"']/g,c=>({
+ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+ }[c]));
 }
-
-function showBest(){
- const best=Number(localStorage.getItem("tapChampionQuizBest")||0);
- $("message").textContent="🏆 Your best score: "+best;
+function backProfile(){
+ $("game").classList.add("hidden");
+ $("board").classList.add("hidden");
+ $("profile").classList.remove("hidden");
+ updateProfile();
+}
+function logout(){
+ currentUser=null;
+ $("profile").classList.add("hidden");
+ $("game").classList.add("hidden");
+ $("board").classList.add("hidden");
+ $("auth").classList.remove("hidden");
 }
 </script>
 </body>
