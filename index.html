@@ -2,359 +2,236 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tap to Champion</title>
-
 <style>
 *{box-sizing:border-box}
 body{
- margin:0;font-family:Arial,sans-serif;color:white;text-align:center;
- background:linear-gradient(135deg,#090923,#391078,#7617a8);
- min-height:100vh;padding:15px
+ margin:0;padding:15px;text-align:center;color:white;
+ font-family:Arial,sans-serif;
+ background:linear-gradient(135deg,#090923,#431078,#8118a8);
+ min-height:100vh
 }
-h1{color:#ffd700;font-size:32px;text-shadow:0 0 15px #ffae00}
-h2{color:#ffe082}
+h1{color:#ffd700;text-shadow:0 0 12px orange}
 .card{
  max-width:600px;margin:15px auto;padding:20px;
- background:#171638;border:1px solid #6b55a5;
- border-radius:20px;box-shadow:0 8px 25px #0005
+ background:#191638;border:1px solid #6b55a5;
+ border-radius:18px;box-shadow:0 8px 22px #0005
 }
 button,input{
- width:100%;padding:13px;margin:7px 0;border-radius:10px;
- border:0;font-size:16px
+ width:100%;padding:13px;margin:6px 0;
+ border:0;border-radius:10px;font-size:16px
 }
-button{background:#8b35e8;color:white;font-weight:bold;cursor:pointer}
-button:active{transform:scale(.98)}
-input{background:#fff;color:#111}
-.gold{background:#b77a00}
-.diamond{background:#0878a5}
-.option{background:#30275f;text-align:left}
-.correct{background:#13813b}
+button{background:#8138e5;color:white;font-weight:bold}
+input{background:white;color:#111}
+.gold{background:#ad7600}
+.blue{background:#0879a5}
+.option{background:#30275f;text-align:left;color:white}
+.correct{background:#12813b}
 .wrong{background:#b52636}
-.small{font-size:13px;color:#ccc;line-height:1.5}
-.stat{display:inline-block;background:#292452;border-radius:12px;padding:12px;margin:4px;min-width:90px}
-.stat strong{display:block;color:#ffd700;font-size:22px}
-.badge{color:#ffd700;font-weight:bold}
 .hidden{display:none!important}
+.stat{
+ display:inline-block;background:#302650;padding:12px;
+ margin:4px;border-radius:10px;min-width:95px
+}
+.stat strong{display:block;color:#ffd700;font-size:22px}
+.small{font-size:13px;color:#ccc;line-height:1.5}
+table{width:100%;border-collapse:collapse}
+td,th{padding:9px;border-bottom:1px solid #555}
+th{color:#ffd700}
 </style>
 </head>
-
 <body>
 
 <h1>🏆 TAP TO CHAMPION</h1>
-<p>🎮 Play • Learn • Become Champion</p>
+<p>🎮 Play • Score • Become Champion</p>
 
-<div class="card" id="welcome">
-<h2>Welcome, Champion! 👑</h2>
-<p class="small">Enter your player name to start.</p>
-<input id="playerName" placeholder="Enter your name" maxlength="24">
-<button onclick="startGame()">🚀 START GAME</button>
+<div class="card" id="login">
+<h2>👑 Choose Your Player</h2>
+<input id="playerName" maxlength="24" placeholder="Enter player name">
+<button onclick="loginPlayer()">START / CREATE PLAYER</button>
+<p class="small">
+Enter the same name again to continue that player's saved game.
+</p>
+<h3>👥 Existing Players</h3>
+<div id="playersList"></div>
 </div>
 
-<div class="hidden" id="dashboard">
-
+<div id="home" class="hidden">
 <div class="card">
-<h2>👑 Player Dashboard</h2>
-<p>Player: <b id="name"></b></p>
+<h2>Welcome, <span id="name"></span> 👑</h2>
 <p>Game ID: <b id="gameId"></b></p>
-
 <div class="stat">⭐ Points<strong id="points">0</strong></div>
 <div class="stat">🏆 Rank<strong id="rank">—</strong></div>
-
-<p id="badge" class="badge">Free Player</p>
+<p id="premium">Free Player</p>
 <button onclick="startQuiz()">🎮 PLAY QUIZ</button>
+<button class="blue" onclick="switchPlayer()">CHANGE PLAYER</button>
+</div>
+
+<div class="card">
+<h2>🏆 PLAYER LEADERBOARD</h2>
+<p class="small">Players on this browser are ranked by their total points.</p>
+<div id="board"></div>
 </div>
 
 <div class="card">
 <h2>⭐ STARS PREMIUM</h2>
-<h1>₹49/month</h1>
-<p>⭐ Stars Badge</p>
-<p>🟡 Gold Profile Theme</p>
-<p>📊 Extra Stats</p>
-<p>🧠 Special Quiz Pack</p>
-<button class="gold" onclick="choosePremium('Stars')">
-SELECT STARS ⭐
-</button>
+<h2>₹49/month</h2>
+<p>⭐ Stars Badge • 🟡 Gold Theme • 📊 Extra Stats</p>
+<button class="gold" onclick="premiumPlan('Stars')">SELECT STARS</button>
 </div>
 
 <div class="card">
 <h2>💎 DIAMOND PREMIUM</h2>
-<h1>₹99/month</h1>
-<p>💎 Diamond Badge</p>
-<p>✨ Special Theme</p>
-<p>📊 Expanded Stats</p>
-<p>🧠 Special Quiz Pack</p>
-<p>⭐ Includes Stars Benefits</p>
-<button class="diamond" onclick="choosePremium('Diamond')">
-SELECT DIAMOND 💎
-</button>
-<p class="small">
-Demo only: These buttons do not charge money.
-Real payments need a secure payment system.
-</p>
-</div>
-
-<div class="card">
-<h2>🏆 LEADERBOARD</h2>
-<ol id="leaderboard"></ol>
-<p class="small">This demo leaderboard works only in this browser.</p>
+<h2>₹99/month</h2>
+<p>💎 Diamond Badge • ✨ Special Theme • ⭐ Stars Benefits</p>
+<button class="blue" onclick="premiumPlan('Diamond')">SELECT DIAMOND</button>
+<p class="small">Demo only: no payment is taken.</p>
 </div>
 </div>
 
 <div class="card hidden" id="quiz">
-<h2 id="questionNo">Question 1</h2>
-<div class="stat">⏱️ Time Left<strong id="timer">15</strong></div>
+<h2 id="qno">Question 1</h2>
+<div class="stat">⏱️ Time<strong id="timer">15</strong></div>
 <h2 id="question"></h2>
 <div id="options"></div>
 <p id="feedback"></p>
 <button id="next" class="hidden" onclick="nextQuestion()">NEXT QUESTION ➜</button>
-<button onclick="quitQuiz()" style="background:#555">QUIT QUIZ</button>
+<button style="background:#555" onclick="quitQuiz()">QUIT QUIZ</button>
 </div>
 
 <div class="card hidden" id="result">
 <h2>🎉 QUIZ SUMMARY</h2>
-<h1>🏆 Champion!</h1>
 <p id="summary"></p>
-<button onclick="startQuiz()">PLAY AGAIN 🔥</button>
-<button onclick="goHome()" style="background:#555">DASHBOARD</button>
+<button onclick="startQuiz()">PLAY AGAIN</button>
+<button class="blue" onclick="goHome()">DASHBOARD</button>
 </div>
 
 <script>
-const $ = id => document.getElementById(id);
+const $=id=>document.getElementById(id);
+const KEY="tapChampionLocalPlayersV3";
 
-let player = {
- name:"",
- id:"",
- points:0,
- premium:"Free"
-};
-
-let timerInterval=null;
+let players={};
+let currentId="";
+let currentQuestion=null;
+let timerHandle=null;
 let timeLeft=15;
 let answered=false;
-let currentQuestion=null;
-let questionCount=0;
+let qCount=0;
 let correctCount=0;
-let sessionPoints=0;
+let roundPoints=0;
 
 const questions=[
- {q:"How many days are in a week?",a:["5","6","7","8"],c:2},
- {q:"What is the capital of India?",a:["Mumbai","New Delhi","Kolkata","Jaipur"],c:1},
- {q:"Which gas do plants absorb?",a:["Oxygen","Nitrogen","Carbon dioxide","Hydrogen"],c:2},
- {q:"How many sides does a triangle have?",a:["2","3","4","5"],c:1},
- {q:"Which planet is called the Red Planet?",a:["Earth","Mars","Venus","Jupiter"],c:1},
- {q:"What is 9 × 6?",a:["45","54","63","56"],c:1},
- {q:"Which is the largest ocean?",a:["Atlantic","Indian","Arctic","Pacific"],c:3},
- {q:"Which organ pumps blood?",a:["Lungs","Heart","Brain","Kidney"],c:1},
- {q:"What is the formula of water?",a:["CO2","O2","H2O","NaCl"],c:2},
- {q:"How many months are in a year?",a:["10","11","12","13"],c:2},
- {q:"Which star is nearest to Earth?",a:["Sirius","Sun","Polaris","Vega"],c:1},
- {q:"Which language adds interactivity to web pages?",a:["JavaScript","C only","SQL","None"],c:0},
- {q:"What is 144 ÷ 12?",a:["10","11","12","14"],c:2},
- {q:"Which part of a plant absorbs water?",a:["Flower","Leaf","Root","Fruit"],c:2},
- {q:"What is the largest mammal?",a:["Elephant","Blue whale","Giraffe","Hippo"],c:1},
- {q:"How many minutes are in an hour?",a:["30","45","60","90"],c:2},
- {q:"The Sun rises in the:",a:["North","South","East","West"],c:2},
- {q:"Which is a programming language?",a:["JavaScript","HTTP","Wi-Fi","Monitor"],c:0},
- {q:"Water freezes at:",a:["0°C","10°C","50°C","100°C"],c:0},
- {q:"Which device is used to type?",a:["Monitor","Keyboard","Speaker","Printer"],c:1}
+{q:"How many days are in a week?",a:["5","6","7","8"],c:2},
+{q:"What is the capital of India?",a:["Mumbai","New Delhi","Kolkata","Jaipur"],c:1},
+{q:"Which gas do plants absorb?",a:["Oxygen","Nitrogen","Carbon dioxide","Hydrogen"],c:2},
+{q:"How many sides does a triangle have?",a:["2","3","4","5"],c:1},
+{q:"Which planet is called the Red Planet?",a:["Earth","Mars","Venus","Jupiter"],c:1},
+{q:"What is 9 × 6?",a:["45","54","63","56"],c:1},
+{q:"Which is the largest ocean?",a:["Atlantic","Indian","Arctic","Pacific"],c:3},
+{q:"Which organ pumps blood?",a:["Lungs","Heart","Brain","Kidney"],c:1},
+{q:"What is the formula of water?",a:["CO2","O2","H2O","NaCl"],c:2},
+{q:"How many months are in a year?",a:["10","11","12","13"],c:2},
+{q:"Which star is nearest to Earth?",a:["Sirius","Sun","Polaris","Vega"],c:1},
+{q:"Which language adds interactivity to websites?",a:["JavaScript","C only","SQL","None"],c:0},
+{q:"What is 144 ÷ 12?",a:["10","11","12","14"],c:2},
+{q:"Which part of a plant absorbs water?",a:["Flower","Leaf","Root","Fruit"],c:2},
+{q:"What is the largest mammal?",a:["Elephant","Blue whale","Giraffe","Hippo"],c:1},
+{q:"How many minutes are in an hour?",a:["30","45","60","90"],c:2},
+{q:"The Sun rises in the:",a:["North","South","East","West"],c:2},
+{q:"Which is a programming language?",a:["JavaScript","HTTP","Wi-Fi","Monitor"],c:0},
+{q:"Water freezes at:",a:["0°C","10°C","50°C","100°C"],c:0},
+{q:"Which device is used to type?",a:["Monitor","Keyboard","Speaker","Printer"],c:1}
 ];
 
 function save(){
- localStorage.setItem("tapChampionPlayer",JSON.stringify(player));
- updateDashboard();
+ try{localStorage.setItem(KEY,JSON.stringify(players));}
+ catch(e){alert("Could not save data in this browser.");}
 }
 
 function load(){
  try{
-  const data=JSON.parse(localStorage.getItem("tapChampionPlayer"));
-  if(data){
-   player=data;
-   $("welcome").classList.add("hidden");
-   $("dashboard").classList.remove("hidden");
-   updateDashboard();
-  }
- }catch(e){}
+  players=JSON.parse(localStorage.getItem(KEY))||{};
+ }catch(e){players={};}
+ renderPlayers();
+ renderBoard();
 }
 
-function startGame(){
- let n=$("playerName").value.trim();
- if(!n){alert("Please enter your name!");return}
- player.name=n;
- player.id=player.id||"TC-"+Math.random().toString(36).slice(2,9).toUpperCase();
+function player(){
+ return players[currentId];
+}
+
+function loginPlayer(){
+ let name=$("playerName").value.trim();
+ if(!name){alert("Enter your player name!");return;}
+
+ let id=Object.keys(players).find(k=>
+  players[k].name.toLowerCase()===name.toLowerCase()
+ );
+
+ if(!id){
+  id="TC-"+Math.random().toString(36).slice(2,9).toUpperCase();
+  players[id]={
+   id:id,name:name,points:0,premium:"Free"
+  };
+ }
+
+ currentId=id;
  save();
- $("welcome").classList.add("hidden");
- $("dashboard").classList.remove("hidden");
+ show("home");
+ updateHome();
 }
 
-function updateDashboard(){
- $("name").textContent=player.name;
- $("gameId").textContent=player.id;
- $("points").textContent=player.points;
- $("rank").textContent=player.points>0?"#1":"—";
- $("badge").textContent=
- player.premium==="Diamond"?"💎 Diamond Premium":
- player.premium==="Stars"?"⭐ Stars Premium":"Free Player";
- $("leaderboard").innerHTML="";
- let li=document.createElement("li");
- li.textContent=player.name+" — "+player.points+" points";
- $("leaderboard").appendChild(li);
+function chooseExisting(id){
+ currentId=id;
+ show("home");
+ updateHome();
 }
 
-function choosePremium(plan){
- if(confirm("Demo only: select "+plan+" Premium? No payment will be taken.")){
-  if(plan==="Stars"&&player.premium==="Diamond"){
-   alert("Diamond already includes Stars benefits!");
-   return;
-  }
-  player.premium=plan;
-  save();
-  alert(plan+" demo selected! No money was charged.");
- }
-}
+function renderPlayers(){
+ let box=$("playersList");
+ box.innerHTML="";
+ let list=Object.values(players);
 
-function makeQuestion(){
- // Unlimited randomized maths questions and general knowledge.
- if(Math.random()<0.65){
-  let type=Math.floor(Math.random()*4);
-  let a,b,answer,text;
-
-  if(type===0){
-   a=Math.floor(Math.random()*100)+1;
-   b=Math.floor(Math.random()*100)+1;
-   answer=a+b;text="What is "+a+" + "+b+"?";
-  }else if(type===1){
-   a=Math.floor(Math.random()*100)+1;
-   b=Math.floor(Math.random()*a)+1;
-   answer=a-b;text="What is "+a+" − "+b+"?";
-  }else if(type===2){
-   a=Math.floor(Math.random()*12)+1;
-   b=Math.floor(Math.random()*12)+1;
-   answer=a*b;text="What is "+a+" × "+b+"?";
-  }else{
-   b=Math.floor(Math.random()*12)+1;
-   answer=Math.floor(Math.random()*12)+1;
-   a=b*answer;
-   text="What is "+a+" ÷ "+b+"?";
-  }
-
-  let choices=new Set([answer]);
-  while(choices.size<4){
-   let wrong=answer+Math.floor(Math.random()*21)-10;
-   if(wrong>=0&&wrong!==answer)choices.add(wrong);
-  }
-  let arr=[...choices].sort(()=>Math.random()-.5);
-  return {q:text,a:arr.map(String),c:arr.indexOf(answer)};
+ if(!list.length){
+  box.textContent="No players yet.";
+  return;
  }
 
- return questions[Math.floor(Math.random()*questions.length)];
+ list.forEach(p=>{
+  let b=document.createElement("button");
+  b.textContent=p.name+" — "+p.points+" points";
+  b.onclick=()=>chooseExisting(p.id);
+  box.appendChild(b);
+ });
 }
 
-function startQuiz(){
- questionCount=0;
- correctCount=0;
- sessionPoints=0;
- $("dashboard").classList.add("hidden");
- $("result").classList.add("hidden");
- $("quiz").classList.remove("hidden");
- showQuestion();
-}
+function renderBoard(){
+ let list=Object.values(players)
+  .sort((a,b)=>b.points-a.points);
 
-function stopTimer(){
- if(timerInterval){
-  clearInterval(timerInterval);
-  timerInterval=null;
- }
-}
+ let html="<table><tr><th>Rank</th><th>Player</th><th>Points</th></tr>";
 
-function showQuestion(){
- stopTimer();
- answered=false;
- timeLeft=15;
- questionCount++;
- currentQuestion=makeQuestion();
-
- $("questionNo").textContent="Question "+questionCount+" — Unlimited Mode";
- $("question").textContent=currentQuestion.q;
- $("timer").textContent=timeLeft;
- $("feedback").textContent="";
- $("next").classList.add("hidden");
- $("options").innerHTML="";
-
- currentQuestion.a.forEach((answer,index)=>{
-  let btn=document.createElement("button");
-  btn.className="option";
-  btn.textContent=String.fromCharCode(65+index)+". "+answer;
-  btn.onclick=()=>selectAnswer(index,btn);
-  $("options").appendChild(btn);
+ list.forEach((p,i)=>{
+  html+="<tr><td>"+(i+1)+"</td><td>"+
+   escapeText(p.name)+"</td><td>"+p.points+"</td></tr>";
  });
 
- timerInterval=setInterval(()=>{
-  timeLeft--;
-  $("timer").textContent=timeLeft;
-
-  if(timeLeft<=0){
-   stopTimer();
-   if(!answered){
-    answered=true;
-    disableOptions();
-    $("feedback").textContent="⏰ Time is up!";
-    $("next").classList.remove("hidden");
-   }
-  }
- },1000);
+ html+="</table>";
+ $("board").innerHTML=list.length?html:"No scores yet.";
 }
 
-function disableOptions(){
- [...$("options").children].forEach(b=>b.disabled=true);
+function escapeText(text){
+ let el=document.createElement("span");
+ el.textContent=text;
+ return el.innerHTML;
 }
 
-function selectAnswer(index,btn){
- if(answered)return;
- answered=true;
- stopTimer();
- disableOptions();
-
- if(index===currentQuestion.c){
-  correctCount++;
-  player.points+=10;
-  sessionPoints+=10;
-  btn.classList.add("correct");
-  $("feedback").textContent="✅ Correct! +10 Points";
- }else{
-  btn.classList.add("wrong");
-  $("options").children[currentQuestion.c].classList.add("correct");
-  $("feedback").textContent="❌ Wrong answer!";
- }
-
- save();
- $("next").classList.remove("hidden");
-}
-
-function nextQuestion(){
- showQuestion();
-}
-
-function quitQuiz(){
- stopTimer();
- $("quiz").classList.add("hidden");
- $("result").classList.remove("hidden");
- $("summary").textContent=
- player.name+", you answered "+questionCount+
- " questions and got "+correctCount+
- " correct. You earned "+sessionPoints+
- " points in this session!";
- save();
-}
-
-function goHome(){
- $("result").classList.add("hidden");
- $("dashboard").classList.remove("hidden");
- updateDashboard();
-}
-
-load();
-</script>
-
-</body>
-</html>
+function updateHome(){
+ let p=player();
+ $("name").textContent=p.name;
+ $("gameId").textContent=p.id;
+ $("points").textContent=p.points;
+ $("premium").textContent=
+  p.premium==="Diamond"?"💎 Diamond Premium":
+  p.premium==="
