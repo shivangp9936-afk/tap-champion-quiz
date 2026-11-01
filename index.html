@@ -1,237 +1,296 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tap to Champion</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tap Champion Quiz</title>
 <style>
 *{box-sizing:border-box}
 body{
- margin:0;padding:15px;text-align:center;color:white;
- font-family:Arial,sans-serif;
- background:linear-gradient(135deg,#090923,#431078,#8118a8);
+ margin:0;font-family:Arial,sans-serif;color:#303653;
+ background:linear-gradient(145deg,#fffdf3,#e8f5ff,#f2eaff);
  min-height:100vh
 }
-h1{color:#ffd700;text-shadow:0 0 12px orange}
+header{text-align:center;padding:20px 10px}
+.peacock{font-size:35px}
+h1{color:#5355ad;margin:8px}
+.sub{color:#737b98}
+.container{width:92%;max-width:470px;margin:auto;padding-bottom:25px}
 .card{
- max-width:600px;margin:15px auto;padding:20px;
- background:#191638;border:1px solid #6b55a5;
- border-radius:18px;box-shadow:0 8px 22px #0005
+ background:#ffffffed;border:1px solid #e0e5fa;
+ border-radius:20px;padding:20px;margin-bottom:16px;
+ box-shadow:0 7px 22px #55557712
 }
-button,input{
- width:100%;padding:13px;margin:6px 0;
- border:0;border-radius:10px;font-size:16px
+h2{color:#5355ad;margin-top:0}
+input{
+ width:100%;padding:14px;border:1px solid #ccd4ed;
+ border-radius:12px;font-size:16px;margin:10px 0
 }
-button{background:#8138e5;color:white;font-weight:bold}
-input{background:white;color:#111}
-.gold{background:#ad7600}
-.blue{background:#0879a5}
-.option{background:#30275f;text-align:left;color:white}
-.correct{background:#12813b}
-.wrong{background:#b52636}
-.hidden{display:none!important}
+button{
+ width:100%;padding:13px;border:0;border-radius:12px;
+ margin-top:10px;background:#6669ce;color:white;
+ font-size:16px;font-weight:bold;cursor:pointer
+}
+.secondary{background:#e9ebff;color:#484b98}
+.answer{
+ background:#f0f2ff;color:#303653;text-align:left;
+ border:1px solid #dce0f5
+}
+.correct{background:#d9f8e7!important;color:#17663d!important}
+.wrong{background:#ffe0e0!important;color:#9c2525!important}
+button:disabled{opacity:.9}
+.hidden{display:none}
+.stats{display:flex;gap:8px;margin:15px 0}
 .stat{
- display:inline-block;background:#302650;padding:12px;
- margin:4px;border-radius:10px;min-width:95px
+ flex:1;text-align:center;background:#f0f1ff;
+ border-radius:12px;padding:12px 3px
 }
-.stat strong{display:block;color:#ffd700;font-size:22px}
-.small{font-size:13px;color:#ccc;line-height:1.5}
-table{width:100%;border-collapse:collapse}
-td,th{padding:9px;border-bottom:1px solid #555}
-th{color:#ffd700}
+.stat strong{display:block;font-size:21px;color:#5355ad}
+.stat span{font-size:12px;color:#717895}
+#question{font-size:19px;line-height:1.5}
+.bar{height:8px;background:#e5e7f7;border-radius:8px;overflow:hidden}
+#progress{height:100%;width:0;background:#7779df}
+#message{text-align:center;font-weight:bold}
+.row{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #eee}
+footer{text-align:center;padding:15px;color:#858ba2;font-size:12px}
 </style>
 </head>
 <body>
 
-<h1>🏆 TAP TO CHAMPION</h1>
-<p>🎮 Play • Score • Become Champion</p>
+<header>
+ <div class="peacock">🦚 🪷 🦚</div>
+ <h1>Tap Champion</h1>
+ <div class="sub">✨ My First Quiz Game ✨</div>
+</header>
 
-<div class="card" id="login">
-<h2>👑 Choose Your Player</h2>
-<input id="playerName" maxlength="24" placeholder="Enter player name">
-<button onclick="loginPlayer()">START / CREATE PLAYER</button>
-<p class="small">
-Enter the same name again to continue that player's saved game.
-</p>
-<h3>👥 Existing Players</h3>
-<div id="playersList"></div>
-</div>
+<main class="container">
 
-<div id="home" class="hidden">
-<div class="card">
-<h2>Welcome, <span id="name"></span> 👑</h2>
-<p>Game ID: <b id="gameId"></b></p>
-<div class="stat">⭐ Points<strong id="points">0</strong></div>
-<div class="stat">🏆 Rank<strong id="rank">—</strong></div>
-<p id="premium">Free Player</p>
-<button onclick="startQuiz()">🎮 PLAY QUIZ</button>
-<button class="blue" onclick="switchPlayer()">CHANGE PLAYER</button>
-</div>
+<section id="home" class="card">
+ <h2>🙏 स्वागत है!</h2>
+ <p>अपना नाम लिखो और गेम शुरू करो।</p>
+ <input id="playerName" maxlength="20" placeholder="अपना नाम लिखें">
+ <button onclick="login()">🎮 Play Game</button>
+ <button class="secondary" onclick="leaderboard()">🏆 Leaderboard</button>
+</section>
 
-<div class="card">
-<h2>🏆 PLAYER LEADERBOARD</h2>
-<p class="small">Players on this browser are ranked by their total points.</p>
-<div id="board"></div>
-</div>
+<section id="dashboard" class="card hidden">
+ <h2>नमस्ते, <span id="welcome"></span>! 👋</h2>
+ <div class="stats">
+  <div class="stat"><strong id="points">0</strong><span>Total Points</span></div>
+  <div class="stat"><strong id="best">0</strong><span>Best Score</span></div>
+ </div>
+ <button onclick="startQuiz()">🚀 Start Quiz</button>
+ <button class="secondary" onclick="leaderboard()">🏆 Leaderboard</button>
+ <button class="secondary" onclick="goHome()">↩ Change Player</button>
+</section>
 
-<div class="card">
-<h2>⭐ STARS PREMIUM</h2>
-<h2>₹49/month</h2>
-<p>⭐ Stars Badge • 🟡 Gold Theme • 📊 Extra Stats</p>
-<button class="gold" onclick="premiumPlan('Stars')">SELECT STARS</button>
-</div>
+<section id="quiz" class="card hidden">
+ <div class="stats">
+  <div class="stat"><strong id="number">1/10</strong><span>Question</span></div>
+  <div class="stat"><strong id="timer">20</strong><span>Seconds</span></div>
+  <div class="stat"><strong id="score">0</strong><span>Score</span></div>
+ </div>
+ <div class="bar"><div id="progress"></div></div>
+ <h2 id="category">General Knowledge</h2>
+ <p id="question"></p>
+ <div id="answers"></div>
+ <p id="message"></p>
+ <button id="next" class="hidden" onclick="nextQuestion()">Next Question ➜</button>
+ <button class="secondary" onclick="goHome()">🏠 Home</button>
+</section>
 
-<div class="card">
-<h2>💎 DIAMOND PREMIUM</h2>
-<h2>₹99/month</h2>
-<p>💎 Diamond Badge • ✨ Special Theme • ⭐ Stars Benefits</p>
-<button class="blue" onclick="premiumPlan('Diamond')">SELECT DIAMOND</button>
-<p class="small">Demo only: no payment is taken.</p>
-</div>
-</div>
+<section id="result" class="card hidden">
+ <h2 style="text-align:center">🎉 Quiz Complete!</h2>
+ <p id="emoji" style="text-align:center;font-size:38px">🏆</p>
+ <div class="stats">
+  <div class="stat"><strong id="finalScore">0</strong><span>Score</span></div>
+  <div class="stat"><strong id="correctCount">0/10</strong><span>Correct</span></div>
+ </div>
+ <p id="resultMessage" style="text-align:center"></p>
+ <button onclick="startQuiz()">🔄 Play Again</button>
+ <button class="secondary" onclick="leaderboard()">🏆 Leaderboard</button>
+ <button class="secondary" onclick="goHome()">🏠 Home</button>
+</section>
 
-<div class="card hidden" id="quiz">
-<h2 id="qno">Question 1</h2>
-<div class="stat">⏱️ Time<strong id="timer">15</strong></div>
-<h2 id="question"></h2>
-<div id="options"></div>
-<p id="feedback"></p>
-<button id="next" class="hidden" onclick="nextQuestion()">NEXT QUESTION ➜</button>
-<button style="background:#555" onclick="quitQuiz()">QUIT QUIZ</button>
-</div>
+<section id="board" class="card hidden">
+ <h2>🏆 Leaderboard</h2>
+ <div id="leaderList"></div>
+ <button class="secondary" onclick="goHome()">🏠 Back</button>
+</section>
 
-<div class="card hidden" id="result">
-<h2>🎉 QUIZ SUMMARY</h2>
-<p id="summary"></p>
-<button onclick="startQuiz()">PLAY AGAIN</button>
-<button class="blue" onclick="goHome()">DASHBOARD</button>
-</div>
+</main>
+<footer>Made with ❤️ for Quiz Champions</footer>
 
 <script>
-const $=id=>document.getElementById(id);
-const KEY="tapChampionLocalPlayersV3";
-
-let players={};
-let currentId="";
-let currentQuestion=null;
-let timerHandle=null;
-let timeLeft=15;
-let answered=false;
-let qCount=0;
-let correctCount=0;
-let roundPoints=0;
-
 const questions=[
-{q:"How many days are in a week?",a:["5","6","7","8"],c:2},
-{q:"What is the capital of India?",a:["Mumbai","New Delhi","Kolkata","Jaipur"],c:1},
-{q:"Which gas do plants absorb?",a:["Oxygen","Nitrogen","Carbon dioxide","Hydrogen"],c:2},
-{q:"How many sides does a triangle have?",a:["2","3","4","5"],c:1},
-{q:"Which planet is called the Red Planet?",a:["Earth","Mars","Venus","Jupiter"],c:1},
-{q:"What is 9 × 6?",a:["45","54","63","56"],c:1},
-{q:"Which is the largest ocean?",a:["Atlantic","Indian","Arctic","Pacific"],c:3},
-{q:"Which organ pumps blood?",a:["Lungs","Heart","Brain","Kidney"],c:1},
-{q:"What is the formula of water?",a:["CO2","O2","H2O","NaCl"],c:2},
-{q:"How many months are in a year?",a:["10","11","12","13"],c:2},
-{q:"Which star is nearest to Earth?",a:["Sirius","Sun","Polaris","Vega"],c:1},
-{q:"Which language adds interactivity to websites?",a:["JavaScript","C only","SQL","None"],c:0},
-{q:"What is 144 ÷ 12?",a:["10","11","12","14"],c:2},
-{q:"Which part of a plant absorbs water?",a:["Flower","Leaf","Root","Fruit"],c:2},
-{q:"What is the largest mammal?",a:["Elephant","Blue whale","Giraffe","Hippo"],c:1},
-{q:"How many minutes are in an hour?",a:["30","45","60","90"],c:2},
-{q:"The Sun rises in the:",a:["North","South","East","West"],c:2},
-{q:"Which is a programming language?",a:["JavaScript","HTTP","Wi-Fi","Monitor"],c:0},
-{q:"Water freezes at:",a:["0°C","10°C","50°C","100°C"],c:0},
-{q:"Which device is used to type?",a:["Monitor","Keyboard","Speaker","Printer"],c:1}
+ {q:"भारत की राजधानी क्या है?",a:["मुंबई","नई दिल्ली","कोलकाता","जयपुर"],c:1,cat:"🇮🇳 General Knowledge"},
+ {q:"एक सप्ताह में कितने दिन होते हैं?",a:["5","6","7","8"],c:2,cat:"📚 General Knowledge"},
+ {q:"पौधे कौन-सी गैस अवशोषित करते हैं?",a:["ऑक्सीजन","कार्बन डाइऑक्साइड","नाइट्रोजन","हाइड्रोजन"],c:1,cat:"🌱 Science"},
+ {q:"सूर्य किस दिशा से निकलता है?",a:["उत्तर","दक्षिण","पूर्व","पश्चिम"],c:2,cat:"🌍 General Knowledge"},
+ {q:"2 + 5 कितना होता है?",a:["6","7","8","9"],c:1,cat:"🔢 Mathematics"},
+ {q:"पानी का रासायनिक सूत्र क्या है?",a:["CO2","O2","H2O","NaCl"],c:2,cat:"🧪 Science"},
+ {q:"भारत का राष्ट्रीय पशु कौन है?",a:["शेर","बाघ","हाथी","घोड़ा"],c:1,cat:"🇮🇳 General Knowledge"},
+ {q:"कंप्यूटर का दिमाग किसे कहते हैं?",a:["माउस","कीबोर्ड","CPU","मॉनिटर"],c:2,cat:"💻 Computer"},
+ {q:"एक घंटे में कितने मिनट होते हैं?",a:["30","45","60","100"],c:2,cat:"⏰ General Knowledge"},
+ {q:"पृथ्वी का प्राकृतिक उपग्रह कौन है?",a:["सूर्य","मंगल","चंद्रमा","शुक्र"],c:2,cat:"🌍 Science"}
 ];
 
-function save(){
- try{localStorage.setItem(KEY,JSON.stringify(players));}
- catch(e){alert("Could not save data in this browser.");}
-}
+let player="";
+let index=0,score=0,correct=0,time=20;
+let timerId=null,answered=false,round=[];
 
-function load(){
- try{
-  players=JSON.parse(localStorage.getItem(KEY))||{};
- }catch(e){players={};}
- renderPlayers();
- renderBoard();
-}
+function $(id){return document.getElementById(id)}
 
-function player(){
- return players[currentId];
-}
-
-function loginPlayer(){
- let name=$("playerName").value.trim();
- if(!name){alert("Enter your player name!");return;}
-
- let id=Object.keys(players).find(k=>
-  players[k].name.toLowerCase()===name.toLowerCase()
+function show(id){
+ ["home","dashboard","quiz","result","board"].forEach(
+  x=>$(x).classList.add("hidden")
  );
-
- if(!id){
-  id="TC-"+Math.random().toString(36).slice(2,9).toUpperCase();
-  players[id]={
-   id:id,name:name,points:0,premium:"Free"
-  };
- }
-
- currentId=id;
- save();
- show("home");
- updateHome();
+ $(id).classList.remove("hidden");
 }
 
-function chooseExisting(id){
- currentId=id;
- show("home");
- updateHome();
+function getData(){
+ try{return JSON.parse(localStorage.getItem("tapChampionData"))||{}}
+ catch(e){return {}}
 }
 
-function renderPlayers(){
- let box=$("playersList");
+function saveData(data){
+ try{localStorage.setItem("tapChampionData",JSON.stringify(data))}
+ catch(e){}
+}
+
+function login(){
+ const name=$("playerName").value.trim();
+ if(!name){alert("पहले अपना नाम लिखो!");return}
+ player=name;
+ const data=getData();
+ if(!data[player])data[player]={points:0,best:0};
+ saveData(data);
+ updateDashboard();
+ show("dashboard");
+}
+
+function updateDashboard(){
+ const data=getData();
+ const p=data[player]||{points:0,best:0};
+ $("welcome").textContent=player;
+ $("points").textContent=p.points;
+ $("best").textContent=p.best;
+}
+
+function startQuiz(){
+ if(!player){show("home");return}
+ round=[...questions].sort(()=>Math.random()-.5);
+ index=0;score=0;correct=0;
+ show("quiz");
+ renderQuestion();
+}
+
+function renderQuestion(){
+ clearInterval(timerId);
+ answered=false;time=20;
+ const q=round[index];
+ $("number").textContent=(index+1)+"/"+round.length;
+ $("timer").textContent=time;
+ $("score").textContent=score;
+ $("category").textContent=q.cat;
+ $("question").textContent=q.q;
+ $("progress").style.width=(index/round.length*100)+"%";
+ $("message").textContent="";
+ $("next").classList.add("hidden");
+ const box=$("answers");
  box.innerHTML="";
- let list=Object.values(players);
-
- if(!list.length){
-  box.textContent="No players yet.";
-  return;
- }
-
- list.forEach(p=>{
-  let b=document.createElement("button");
-  b.textContent=p.name+" — "+p.points+" points";
-  b.onclick=()=>chooseExisting(p.id);
+ q.a.forEach((answer,i)=>{
+  const b=document.createElement("button");
+  b.className="answer";
+  b.textContent=String.fromCharCode(65+i)+". "+answer;
+  b.onclick=()=>answerQuestion(i);
   box.appendChild(b);
  });
+ timerId=setInterval(()=>{
+  time--;
+  $("timer").textContent=time;
+  if(time<=0){
+   clearInterval(timerId);
+   answerQuestion(null);
+  }
+ },1000);
 }
 
-function renderBoard(){
- let list=Object.values(players)
-  .sort((a,b)=>b.points-a.points);
-
- let html="<table><tr><th>Rank</th><th>Player</th><th>Points</th></tr>";
-
- list.forEach((p,i)=>{
-  html+="<tr><td>"+(i+1)+"</td><td>"+
-   escapeText(p.name)+"</td><td>"+p.points+"</td></tr>";
+function answerQuestion(selected){
+ if(answered)return;
+ answered=true;
+ clearInterval(timerId);
+ const q=round[index];
+ const buttons=$("answers").querySelectorAll("button");
+ buttons.forEach((b,i)=>{
+  b.disabled=true;
+  if(i===q.c)b.classList.add("correct");
+  if(i===selected&&selected!==q.c)b.classList.add("wrong");
  });
-
- html+="</table>";
- $("board").innerHTML=list.length?html:"No scores yet.";
+ if(selected===q.c){
+  score+=10;correct++;
+  $("message").textContent="🎉 सही जवाब! +10 पॉइंट्स";
+  $("message").style.color="#16834a";
+ }else if(selected===null){
+  $("message").textContent="⏰ समय पूरा! सही जवाब हाइलाइट है।";
+ }else{
+  $("message").textContent="😊 कोई बात नहीं! सही जवाब हाइलाइट है।";
+ }
+ $("score").textContent=score;
+ $("next").textContent=index===round.length-1?"🏆 See Result":"Next Question ➜";
+ $("next").classList.remove("hidden");
 }
 
-function escapeText(text){
- let el=document.createElement("span");
- el.textContent=text;
- return el.innerHTML;
+function nextQuestion(){
+ if(!answered)return;
+ index++;
+ if(index>=round.length){finishQuiz()}
+ else{renderQuestion()}
 }
 
-function updateHome(){
- let p=player();
- $("name").textContent=p.name;
- $("gameId").textContent=p.id;
- $("points").textContent=p.points;
- $("premium").textContent=
-  p.premium==="Diamond"?"💎 Diamond Premium":
-  p.premium==="
+function finishQuiz(){
+ clearInterval(timerId);
+ const data=getData();
+ if(!data[player])data[player]={points:0,best:0};
+ data[player].points+=score;
+ data[player].best=Math.max(data[player].best,score);
+ saveData(data);
+ $("finalScore").textContent=score;
+ $("correctCount").textContent=correct+"/"+round.length;
+ $("emoji").textContent=correct>=8?"🏆":correct>=5?"🌟":"💪";
+ $("resultMessage").textContent="बहुत बढ़िया, "+player+"! तुमने "+score+" पॉइंट्स कमाए।";
+ $("progress").style.width="100%";
+ show("result");
+}
+
+function leaderboard(){
+ const data=getData();
+ const list=Object.entries(data).sort((a,b)=>b[1].points-a[1].points).slice(0,10);
+ const box=$("leaderList");
+ box.innerHTML="";
+ if(!list.length){
+  box.textContent="अभी कोई स्कोर नहीं है। पहले क्विज़ खेलो!";
+ }else{
+  list.forEach((item,i)=>{
+   const row=document.createElement("div");
+   row.className="row";
+   const name=document.createElement("span");
+   name.textContent=(["🥇","🥈","🥉"][i]||(i+1)+".")+" "+item[0];
+   const pts=document.createElement("strong");
+   pts.textContent=item[1].points+" pts";
+   row.appendChild(name);row.appendChild(pts);
+   box.appendChild(row);
+  });
+ }
+ show("board");
+}
+
+function goHome(){
+ clearInterval(timerId);
+ if(player){updateDashboard();show("dashboard")}
+ else{show("home")}
+}
+</script>
+
+</body>
+</html>
