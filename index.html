@@ -4,350 +4,274 @@ HTML
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Chirag Quiz Game</title>
 <style>
 *{box-sizing:border-box}
 body{
  margin:0;padding:15px;min-height:100vh;
  background:linear-gradient(135deg,#080b2c,#5013a0,#111b50);
- color:white;font-family:Arial,sans-serif;text-align:center
+ color:white;font-family:Arial,sans-serif
 }
-.container{max-width:480px;margin:auto}
-h1{color:#ffd76a;font-size:30px}
+.container{max-width:600px;margin:auto}
+h1{text-align:center;color:#ffd700}
 .card{
- background:#ffffff18;border:1px solid #ffffff35;
- border-radius:18px;padding:20px;margin:15px 0
+ background:#ffffff16;border:1px solid #ffffff30;
+ border-radius:18px;padding:18px;margin:14px 0
 }
-input{
- width:100%;padding:14px;border:0;
- border-radius:10px;font-size:17px
-}
-button{
- padding:13px 18px;margin:7px;border:0;
- border-radius:11px;
- background:linear-gradient(135deg,#ffe08a,#ffb52e);
- color:#24123d;font-size:16px;font-weight:bold;cursor:pointer
-}
-button:disabled{opacity:.6}
-.secondary{background:#eee}
-.hidden{display:none!important}
-.stats{display:flex;gap:7px}
-.stat{flex:1;background:#ffffff18;padding:10px;border-radius:10px}
-.stat strong{display:block;color:#ffdb75;font-size:22px;margin-top:5px}
-.question{font-size:22px;line-height:1.5;margin:25px 0}
-.option{
- display:block;width:100%;text-align:left;
- background:#f2eaff;color:#261747;margin:10px 0
-}
-.correct{background:#80e6a0!important}
-.wrong{background:#ff9999!important}
-#feedback{min-height:25px}
-.small{font-size:13px;color:#ddd}
-ol{text-align:left;line-height:1.8}
+input,button{width:100%;padding:14px;border:0;border-radius:10px;font-size:16px;margin:7px 0}
+button{background:linear-gradient(90deg,#ffd700,#ffae00);color:#241344;font-weight:bold;cursor:pointer}
+.option{background:#ffffff20;color:white;border:1px solid #ffffff55;text-align:left}
+.option.correct{background:#168b43}
+.option.wrong{background:#bd3030}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.stat{background:#ffffff18;border-radius:10px;padding:12px 3px}
+.stat b{display:block;color:#ffd700;font-size:20px;margin-top:5px}
+.small{text-align:center;color:#ddd;font-size:13px}
+#quizArea{display:none}
+#timer{text-align:center;color:#ffd700;font-size:28px;font-weight:bold}
+#question{font-size:21px;line-height:1.5}
+#message{text-align:center;min-height:25px;font-weight:bold}
+#leaderboard div{padding:9px;border-bottom:1px solid #ffffff25;display:flex;justify-content:space-between}
+footer{text-align:center;color:#ccc;font-size:12px;margin:20px}
 </style>
 </head>
 <body>
 <div class="container">
+<h1>🏆 Chirag Quiz Game</h1>
+<p class="small">खेलो • सीखो • अपना स्कोर बढ़ाओ</p>
 
-<h1>🦚 Chirag Quiz Game 🦚</h1>
-<p>Learn • Play • Become Champion</p>
-
-<section id="login" class="card">
-<h2>Welcome Player 👑</h2>
-<p>अपना नाम लिखकर गेम शुरू करो</p>
+<div class="card" id="loginArea">
+<h2>👤 खिलाड़ी का नाम</h2>
 <input id="playerName" maxlength="20" placeholder="अपना नाम लिखें">
-<br>
-<button onclick="login()">LOGIN & PLAY</button>
-</section>
+<button onclick="startGame()">गेम शुरू करें</button>
+</div>
 
-<section id="home" class="hidden">
-<div class="card">
-<h2>नमस्ते <span id="showName"></span> 👑</h2>
-<div class="stats">
-<div class="stat">Points<strong id="points">0</strong></div>
-<div class="stat">Best Score<strong id="best">0</strong></div>
-</div>
-<button onclick="startQuiz()">START NEW QUIZ 🚀</button>
-</div>
-<div class="card">
-<h3>🏆 Top Players</h3>
-<ol id="leaderboard"></ol>
-</div>
-<button class="secondary" onclick="logout()">LOGOUT</button>
-</section>
-
-<section id="game" class="hidden">
+<div id="quizArea">
 <div class="card">
 <div class="stats">
-<div class="stat">Question<strong id="qNumber">1/10</strong></div>
-<div class="stat">Score<strong id="score">0</strong></div>
-<div class="stat">Time<strong id="time">20</strong></div>
+<div class="stat">इस गेम का स्कोर<b id="score">0</b></div>
+<div class="stat">कुल पॉइंट<b id="points">0</b></div>
+<div class="stat">हाई स्कोर<b id="best">0</b></div>
 </div>
-<div class="question" id="question"></div>
+</div>
+
+<div class="card">
+<p class="small" id="category">सामान्य ज्ञान</p>
+<div id="timer">20</div>
+<p class="small">सेकंड बाकी</p>
+<h2 id="question">सवाल</h2>
 <div id="options"></div>
-<div id="feedback"></div>
-<p class="small">सही जवाब = +10 Points</p>
+<p id="message"></p>
+<p class="small">सवाल नंबर: <span id="count">1</span></p>
 </div>
-<button class="secondary" onclick="goHome()">HOME</button>
-</section>
 
-<section id="result" class="hidden">
+<button id="nextBtn" onclick="nextQuestion()" style="display:none">अगला सवाल →</button>
+<button onclick="backHome()" style="background:#ddd">गेम बंद करें</button>
+</div>
+
 <div class="card">
-<h2>🎉 Quiz Complete!</h2>
-<h1 id="finalScore">0</h1>
-<p>तुम्हारा स्कोर</p>
-<p id="resultMessage"></p>
-<button onclick="startQuiz()">PLAY AGAIN</button>
-<button class="secondary" onclick="goHome()">HOME</button>
+<h2>🏅 टॉप 10 खिलाड़ी</h2>
+<div id="leaderboard"></div>
 </div>
-</section>
-
-<p class="small">Chirag Quiz Game • Keep Learning • Keep Winning</p>
+<footer>Chirag Quiz Game</footer>
 </div>
 
 <script>
-"use strict";
-
-const KEY="chiragQuizGameData";
-let data={},player="",round=[],current=0,score=0;
-let timer=null,nextTimer=null,seconds=20;
-let answered=false,session=0;
-
 const bank=[
-["भारत की राजधानी क्या है?",["दिल्ली","मुंबई","लखनऊ","जयपुर"],0],
-["एक सप्ताह में कितने दिन होते हैं?",["5","6","7","8"],2],
-["भारत का राष्ट्रीय पशु कौन है?",["शेर","बाघ","हाथी","घोड़ा"],1],
-["12 + 15 कितना होता है?",["25","26","27","28"],2],
-["पृथ्वी का प्राकृतिक उपग्रह कौन है?",["सूर्य","चंद्रमा","मंगल","शुक्र"],1],
-["सबसे बड़ा महासागर कौन सा है?",["हिंद महासागर","अटलांटिक","प्रशांत","आर्कटिक"],2],
-["प्रकाश संश्लेषण में पौधे कौन सी गैस लेते हैं?",["ऑक्सीजन","कार्बन डाइऑक्साइड","नाइट्रोजन","हाइड्रोजन"],1],
-["भारत का राष्ट्रीय पक्षी कौन है?",["तोता","मोर","कबूतर","हंस"],1],
-["त्रिभुज की कितनी भुजाएँ होती हैं?",["2","3","4","5"],1],
-["सूर्य किस दिशा से निकलता है?",["पश्चिम","उत्तर","पूर्व","दक्षिण"],2],
-["भारत का राष्ट्रीय फूल कौन सा है?",["गुलाब","कमल","चमेली","गेंदा"],1],
-["पानी का रासायनिक सूत्र क्या है?",["CO2","O2","H2O","NaCl"],2],
-["कंप्यूटर का दिमाग किसे कहते हैं?",["माउस","CPU","कीबोर्ड","स्क्रीन"],1],
-["इंद्रधनुष में कितने रंग होते हैं?",["5","6","7","8"],2],
-["भारत कब स्वतंत्र हुआ?",["1945","1947","1950","1952"],1],
-["लाल ग्रह किसे कहते हैं?",["शुक्र","मंगल","बृहस्पति","शनि"],1],
-["एक साल में कितने महीने होते हैं?",["10","11","12","13"],2],
-["भारत की मुद्रा क्या है?",["डॉलर","रुपया","यूरो","येन"],1],
-["किस जानवर को रेगिस्तान का जहाज कहते हैं?",["घोड़ा","ऊँट","हाथी","गधा"],1],
-["खून को शरीर में कौन पंप करता है?",["फेफड़े","दिमाग","हृदय","गुर्दा"],2],
-["भारत का राष्ट्रीय गान कौन सा है?",["वंदे मातरम्","जन गण मन","सारे जहाँ से अच्छा","इनमें से कोई नहीं"],1],
-["सबसे बड़ा महाद्वीप कौन सा है?",["यूरोप","अफ्रीका","एशिया","ऑस्ट्रेलिया"],2],
-["कौन सा विटामिन धूप से मिलता है?",["A","B","C","D"],3],
-["एक घंटे में कितने मिनट होते हैं?",["30","45","60","90"],2],
-["मधुमक्खी क्या बनाती है?",["दूध","शहद","तेल","नमक"],1],
-["सबसे ऊँचा पर्वत कौन सा है?",["K2","एवरेस्ट","कंचनजंगा","नंदा देवी"],1],
-["भारत का गणतंत्र दिवस कब है?",["15 अगस्त","26 जनवरी","2 अक्टूबर","14 नवंबर"],1],
-["पृथ्वी पर कितने महाद्वीप हैं?",["5","6","7","8"],2],
-["मानव शरीर में कितने फेफड़े होते हैं?",["1","2","3","4"],1],
-["भारत का राष्ट्रीय फल कौन सा है?",["सेब","आम","केला","अंगूर"],1]
+["Science","पौधे भोजन किस प्रक्रिया से बनाते हैं?",["प्रकाश संश्लेषण","श्वसन","पाचन","वाष्पीकरण"],0],
+["Science","मानव शरीर में रक्त कौन पंप करता है?",["फेफड़ा","हृदय","मस्तिष्क","गुर्दा"],1],
+["Science","पानी का रासायनिक सूत्र क्या है?",["CO2","O2","H2O","NaCl"],2],
+["Science","सूर्य के सबसे निकट ग्रह कौन सा है?",["पृथ्वी","बुध","मंगल","शनि"],1],
+["Science","मनुष्य सांस लेने में कौन सी गैस उपयोग करता है?",["ऑक्सीजन","नाइट्रोजन","हाइड्रोजन","हीलियम"],0],
+["Science","पृथ्वी का प्राकृतिक उपग्रह कौन है?",["सूर्य","चंद्रमा","मंगल","शुक्र"],1],
+["Science","बल की SI इकाई क्या है?",["जूल","वाट","न्यूटन","मीटर"],2],
+["Science","पानी सामान्यतः कितने डिग्री पर उबलता है?",["50","100","150","200"],1],
+["Science","मानव शरीर का सबसे बड़ा अंग कौन सा है?",["हृदय","त्वचा","फेफड़ा","यकृत"],1],
+["Science","ध्वनि किसमें यात्रा नहीं कर सकती?",["हवा","पानी","निर्वात","लोहा"],2],
+["Maths","12 + 15 कितना है?",["25","27","29","30"],1],
+["Maths","9 × 8 कितना है?",["64","72","81","78"],1],
+["Maths","100 का आधा कितना है?",["25","40","50","60"],2],
+["Maths","त्रिभुज में कितनी भुजाएँ होती हैं?",["2","3","4","5"],1],
+["Maths","15 का वर्ग कितना है?",["125","200","225","250"],2],
+["Maths","एक दर्जन में कितनी वस्तुएँ होती हैं?",["10","12","15","20"],1],
+["Maths","200 का 25 प्रतिशत कितना है?",["25","40","50","75"],2],
+["Maths","7 × 7 कितना है?",["42","48","49","56"],2],
+["Geography","भारत की राजधानी क्या है?",["मुंबई","नई दिल्ली","जयपुर","लखनऊ"],1],
+["Geography","विश्व का सबसे बड़ा महासागर कौन सा है?",["हिंद","अटलांटिक","प्रशांत","आर्कटिक"],2],
+["Geography","भारत में कितने राज्य हैं?",["26","27","28","29"],2],
+["Geography","गंगा नदी का उद्गम किस हिमनद से होता है?",["सियाचिन","गंगोत्री","पिंडारी","जेमू"],1],
+["Geography","विश्व का सबसे ऊँचा पर्वत कौन सा है?",["K2","कंचनजंगा","एवरेस्ट","नंदा देवी"],2],
+["Geography","राजस्थान की राजधानी क्या है?",["जोधपुर","जयपुर","उदयपुर","अजमेर"],1],
+["History","भारत स्वतंत्र कब हुआ?",["1945","1947","1950","1952"],1],
+["History","भारत के राष्ट्रपिता किसे कहा जाता है?",["नेहरू","गांधी","सुभाष बोस","भगत सिंह"],1],
+["History","ताजमहल किसने बनवाया?",["अकबर","शाहजहाँ","बाबर","औरंगजेब"],1],
+["History","भारत का संविधान कब लागू हुआ?",["1947","1950","1952","1949"],1],
+["History","झाँसी की रानी का नाम क्या था?",["दुर्गावती","लक्ष्मीबाई","अहिल्याबाई","पद्मिनी"],1],
+["History","भारत छोड़ो आंदोलन किस वर्ष हुआ?",["1920","1930","1942","1947"],2],
+["Computer","CPU का पूरा नाम क्या है?",["Central Processing Unit","Computer Power Unit","Central Program Utility","Control User"],0],
+["Computer","कंप्यूटर का दिमाग किसे कहते हैं?",["माउस","कीबोर्ड","CPU","मॉनिटर"],2],
+["Computer","WWW का पूरा नाम क्या है?",["World Wide Web","World Web Window","Wide World Work","Web World"],0],
+["Computer","टाइप करने के लिए क्या उपयोग होता है?",["माउस","कीबोर्ड","स्पीकर","प्रिंटर"],1],
+["Computer","कौन सा उपकरण आउटपुट देता है?",["कीबोर्ड","माउस","मॉनिटर","स्कैनर"],2],
+["Sports","क्रिकेट में एक टीम में कितने खिलाड़ी होते हैं?",["9","10","11","12"],2],
+["Sports","ओलंपिक खेल सामान्यतः कितने साल में होते हैं?",["2","3","4","5"],2],
+["Sports","फुटबॉल टीम में मैदान पर कितने खिलाड़ी होते हैं?",["9","10","11","12"],2],
+["Sports","हॉकी में गेंद मारने के लिए क्या उपयोग होता है?",["बैट","स्टिक","रैकेट","डंडा"],1],
+["Sports","शतरंज की बिसात में कितने खाने होते हैं?",["32","48","64","100"],2],
+["Biology","मानव शरीर में कितने फेफड़े होते हैं?",["एक","दो","तीन","चार"],1],
+["Biology","रक्त का लाल रंग किसके कारण होता है?",["क्लोरोफिल","हीमोग्लोबिन","प्लाज्मा","कैल्शियम"],1],
+["Biology","पौधों का हरा रंग किसके कारण होता है?",["हीमोग्लोबिन","क्लोरोफिल","प्रोटीन","स्टार्च"],1],
+["Biology","वयस्क मानव शरीर में सामान्यतः कितनी हड्डियाँ होती हैं?",["106","206","306","406"],1],
+["GK","भारत का राष्ट्रीय पशु कौन है?",["शेर","बाघ","हाथी","हिरण"],1],
+["GK","भारत का राष्ट्रीय पक्षी कौन है?",["तोता","कबूतर","मोर","हंस"],2],
+["GK","भारत का राष्ट्रीय फूल कौन सा है?",["गुलाब","कमल","गेंदा","चमेली"],1],
+["GK","भारत का राष्ट्रगान किसने लिखा?",["प्रेमचंद","रवींद्रनाथ टैगोर","गांधी","बंकिमचंद्र"],1],
+["GK","एक सप्ताह में कितने दिन होते हैं?",["5","6","7","8"],2],
+["GK","भारत की मुद्रा क्या है?",["डॉलर","रुपया","यूरो","येन"],1],
+["GK","भारत का राष्ट्रीय वृक्ष कौन सा है?",["नीम","पीपल","बरगद","आम"],2],
+["GK","सूर्य किस दिशा से निकलता है?",["पश्चिम","उत्तर","दक्षिण","पूर्व"],3],
+["Entertainment","फिल्म देखने के लिए किसका उपयोग होता है?",["टीवी","फ्रिज","पंखा","मिक्सर"],0],
+["GK","भारत का राष्ट्रीय फल कौन सा है?",["सेब","आम","केला","अंगूर"],1],
+["Science","लाल ग्रह किसे कहा जाता है?",["शुक्र","मंगल","बुध","बृहस्पति"],1],
+["Science","सौरमंडल का सबसे बड़ा ग्रह कौन है?",["पृथ्वी","मंगल","बृहस्पति","शनि"],2],
+["Geography","उत्तर प्रदेश की राजधानी क्या है?",["कानपुर","लखनऊ","आगरा","वाराणसी"],1],
+["Sports","बैडमिंटन किससे खेला जाता है?",["बैट","रैकेट","स्टिक","गेंद"],1]
 ];
 
+let player="",data={},used=[],questions=[],current=0;
+let score=0,timer=null,timeLeft=20,answered=false;
+
 function loadData(){
- try{return JSON.parse(localStorage.getItem(KEY))||{}}
- catch(e){return {}}
+ try{data=JSON.parse(localStorage.getItem("chiragQuizData"))||{}}
+ catch(e){data={}}
 }
 function saveData(){
- try{localStorage.setItem(KEY,JSON.stringify(data))}
- catch(e){alert("डेटा सेव नहीं हो पाया।")}
+ localStorage.setItem("chiragQuizData",JSON.stringify(data));
 }
-function stopTimers(){
- clearInterval(timer);
- clearTimeout(nextTimer);
- timer=null;
- nextTimer=null;
-}
-function show(id){
- ["login","home","game","result"].forEach(x=>{
-  document.getElementById(x).classList.add("hidden");
- });
- document.getElementById(id).classList.remove("hidden");
-}
-function login(){
- let name=document.getElementById("playerName").value.trim();
- if(!name){alert("पहले अपना नाम लिखो!");return}
- player=name;
- data=loadData();
- if(!data[player])data[player]={points:0,best:0,used:[]};
- if(!Array.isArray(data[player].used))data[player].used=[];
- data[player].points=Number(data[player].points)||0;
- data[player].best=Number(data[player].best)||0;
- saveData();
- openHome();
-}
-function openHome(){
- if(!player)return;
- document.getElementById("showName").textContent=player;
- document.getElementById("points").textContent=data[player].points;
- document.getElementById("best").textContent=data[player].best;
- updateBoard();
- show("home");
-}
-function logout(){
- session++;
- stopTimers();
- player="";
- round=[];
- document.getElementById("playerName").value="";
- show("login");
-}
-function goHome(){
- session++;
- stopTimers();
- round=[];
- openHome();
-}
-function updateBoard(){
- let list=document.getElementById("leaderboard");
- list.innerHTML="";
- Object.entries(data)
- .sort((a,b)=>(b[1].points||0)-(a[1].points||0))
- .slice(0,10).forEach(([name,p])=>{
-  let li=document.createElement("li");
-  li.textContent=name+" — "+(p.points||0)+" points";
-  list.appendChild(li);
- });
- if(!list.children.length)list.innerHTML="<li>अभी कोई खिलाड़ी नहीं</li>";
-}
-function shuffle(a){
+function shuffle(arr){
+ let a=[...arr];
  for(let i=a.length-1;i>0;i--){
   let j=Math.floor(Math.random()*(i+1));
   [a[i],a[j]]=[a[j],a[i]];
  }
  return a;
 }
-function mathQuestion(used){
- for(let tries=0;tries<5000;tries++){
-  let a=Math.floor(Math.random()*90)+10;
-  let b=Math.floor(Math.random()*20)+1;
-  let op=["+","-","×"][Math.floor(Math.random()*3)];
-  if(op==="×"){
-   a=Math.floor(Math.random()*12)+2;
-   b=Math.floor(Math.random()*12)+2;
-  }
-  let ans=op==="+"?a+b:op==="-"?a-b:a*b;
-  let id="math-"+op+"-"+a+"-"+b;
-  if(used.has(id))continue;
-  let wrong=new Set();
-  while(wrong.size<3){
-   let v=ans+Math.floor(Math.random()*21)-10;
-   if(v!==ans&&v>=0)wrong.add(v);
-  }
-  let opts=shuffle([ans,...wrong]);
-  return {id:id,q:a+" "+op+" "+b+" = ?",options:opts.map(String),answer:opts.indexOf(ans)};
+function startGame(){
+ let name=document.getElementById("playerName").value.trim();
+ if(!name){alert("पहले अपना नाम लिखें");return}
+ player=name;
+ loadData();
+ if(!data[player])data[player]={points:0,best:0,used:[]};
+ if(!Array.isArray(data[player].used))data[player].used=[];
+ used=data[player].used;
+ score=0;current=0;
+ questions=shuffle(bank.map((q,i)=>i).filter(i=>!used.includes(i)));
+ if(questions.length===0){
+  used=[];data[player].used=[];saveData();
+  questions=shuffle(bank.map((q,i)=>i));
  }
- return null;
-}
-function startQuiz(){
- if(!player)return;
- session++;
- stopTimers();
- let used=new Set(data[player].used||[]);
- let available=bank.map((q,i)=>({
-  id:"bank-"+i,q:q[0],options:q[1],answer:q[2]
- })).filter(q=>!used.has(q.id));
- shuffle(available);
- round=available.slice(0,10);
- while(round.length<10){
-  let q=mathQuestion(used);
-  if(!q)break;
-  round.push(q);
-  used.add(q.id);
- }
- if(round.length<10){
-  alert("नए सवाल तैयार नहीं हो पाए।");
-  openHome();
-  return;
- }
- round.forEach(q=>used.add(q.id));
- data[player].used=[...used];
- saveData();
- current=0;
- score=0;
- document.getElementById("score").textContent="0";
- show("game");
+ document.getElementById("loginArea").style.display="none";
+ document.getElementById("quizArea").style.display="block";
+ updateStats();
  showQuestion();
 }
+function updateStats(){
+ document.getElementById("score").textContent=score;
+ document.getElementById("points").textContent=data[player].points;
+ document.getElementById("best").textContent=data[player].best;
+ updateLeaderboard();
+}
 function showQuestion(){
- stopTimers();
- if(current>=round.length){finishQuiz();return}
- answered=false;
- seconds=20;
- let q=round[current];
- document.getElementById("time").textContent=seconds;
- document.getElementById("qNumber").textContent=(current+1)+"/10";
- document.getElementById("question").textContent=q.q;
- document.getElementById("feedback").textContent="";
+ if(current>=questions.length){
+  used=[];data[player].used=[];saveData();
+  questions=shuffle(bank.map((q,i)=>i));
+  current=0;
+ }
+ answered=false;timeLeft=20;
+ let q=bank[questions[current]];
+ document.getElementById("category").textContent="विषय: "+q[0];
+ document.getElementById("question").textContent=q[1];
+ document.getElementById("count").textContent=current+1;
+ document.getElementById("message").textContent="";
+ document.getElementById("nextBtn").style.display="none";
  let box=document.getElementById("options");
  box.innerHTML="";
- q.options.forEach((option,i)=>{
-  let btn=document.createElement("button");
-  btn.className="option";
-  btn.textContent=option;
-  btn.onclick=()=>answerQuestion(i,btn);
-  box.appendChild(btn);
+ q[2].forEach((option,i)=>{
+  let b=document.createElement("button");
+  b.className="option";
+  b.textContent=(i+1)+". "+option;
+  b.onclick=()=>answerQuestion(i);
+  box.appendChild(b);
  });
- let s=session;
+ updateTimer();
+ clearInterval(timer);
  timer=setInterval(()=>{
-  if(s!==session){stopTimers();return}
-  seconds--;
-  document.getElementById("time").textContent=seconds;
-  if(seconds<=0&&!answered){
-   answered=true;
-   stopTimers();
-   disableOptions();
-   document.getElementById("feedback").textContent="⏰ समय समाप्त!";
-   scheduleNext(1000,s);
+  timeLeft--;
+  updateTimer();
+  if(timeLeft<=0){
+   clearInterval(timer);
+   if(!answered){
+    answered=true;
+    document.getElementById("message").textContent="⏰ समय समाप्त!";
+    lockOptions();
+    document.getElementById("nextBtn").style.display="block";
+   }
   }
  },1000);
 }
-function disableOptions(){
- document.querySelectorAll("#options button").forEach(b=>b.disabled=true);
+function updateTimer(){
+ document.getElementById("timer").textContent=timeLeft;
 }
-function answerQuestion(choice,btn){
+function lockOptions(){
+ document.querySelectorAll(".option").forEach(b=>b.disabled=true);
+}
+function answerQuestion(choice){
  if(answered)return;
- answered=true;
- stopTimers();
- let q=round[current];
- disableOptions();
- let buttons=document.querySelectorAll("#options button");
- buttons[q.answer].classList.add("correct");
- if(choice===q.answer){
+ answered=true;clearInterval(timer);
+ let q=bank[questions[current]];
+ lockOptions();
+ let buttons=document.querySelectorAll(".option");
+ buttons[q[3]].classList.add("correct");
+ if(choice===q[3]){
   score+=10;
-  document.getElementById("score").textContent=score;
-  document.getElementById("feedback").textContent="🎉 सही जवाब! +10 Points";
+  data[player].points+=10;
+  data[player].best=Math.max(data[player].best,score);
+  document.getElementById("message").textContent="🎉 सही जवाब! +10 पॉइंट";
  }else{
-  btn.classList.add("wrong");
-  document.getElementById("feedback").textContent="❌ गलत जवाब!";
+  buttons[choice].classList.add("wrong");
+  document.getElementById("message").textContent="❌ गलत जवाब!";
  }
- scheduleNext(1000,session);
+ saveData();updateStats();
+ document.getElementById("nextBtn").style.display="block";
 }
-function scheduleNext(delay,s){
- nextTimer=setTimeout(()=>{
-  nextTimer=null;
-  if(s!==session)return;
-  current++;
-  showQuestion();
- },delay);
-}
-function finishQuiz(){
- stopTimers();
- session++;
- data=loadData();
- if(!data[player])return;
- data[player].points=(data[player].points||0)+score;
- data[player].best=Math.max(data[player].best||0,score);
+function nextQuestion(){
+ if(!answered)return;
+ let id=questions[current];
+ if(!used.includes(id))used.push(id);
+ data[player].used=used;
  saveData();
- document.getElementById("finalScore").textContent=score;
- document.getElementById("resultMessage").textContent="बहुत अच्छा खेला! तुम्हारे पॉइंट अपडेट हो गए।";
- show("result");
+ current++;
+ showQuestion();
 }
-data=loadData();
-show("login");
+function updateLeaderboard(){
+ let list=Object.entries(data).sort((a,b)=>b[1].points-a[1].points).slice(0,10);
+ let html="";
+ list.forEach((item,i)=>{
+  html+="<div><span>"+(i+1)+". "+escapeHTML(item[0])+"</span><b>"+item[1].points+" ⭐</b></div>";
+ });
+ document.getElementById("leaderboard").innerHTML=html||"अभी कोई खिलाड़ी नहीं";
+}
+function escapeHTML(s){
+ return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function backHome(){
+ clearInterval(timer);
+ document.getElementById("quizArea").style.display="none";
+ document.getElementById("loginArea").style.display="block";
+}
+loadData();
+updateLeaderboard();
 </script>
 </body>
 </html>
