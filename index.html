@@ -1,296 +1,353 @@
+HTML
+
 <!DOCTYPE html>
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tap Champion Quiz</title>
+<title>Chirag Quiz Game</title>
 <style>
 *{box-sizing:border-box}
 body{
- margin:0;font-family:Arial,sans-serif;color:#303653;
- background:linear-gradient(145deg,#fffdf3,#e8f5ff,#f2eaff);
- min-height:100vh
+ margin:0;padding:15px;min-height:100vh;
+ background:linear-gradient(135deg,#080b2c,#5013a0,#111b50);
+ color:white;font-family:Arial,sans-serif;text-align:center
 }
-header{text-align:center;padding:20px 10px}
-.peacock{font-size:35px}
-h1{color:#5355ad;margin:8px}
-.sub{color:#737b98}
-.container{width:92%;max-width:470px;margin:auto;padding-bottom:25px}
+.container{max-width:480px;margin:auto}
+h1{color:#ffd76a;font-size:30px}
 .card{
- background:#ffffffed;border:1px solid #e0e5fa;
- border-radius:20px;padding:20px;margin-bottom:16px;
- box-shadow:0 7px 22px #55557712
+ background:#ffffff18;border:1px solid #ffffff35;
+ border-radius:18px;padding:20px;margin:15px 0
 }
-h2{color:#5355ad;margin-top:0}
 input{
- width:100%;padding:14px;border:1px solid #ccd4ed;
- border-radius:12px;font-size:16px;margin:10px 0
+ width:100%;padding:14px;border:0;
+ border-radius:10px;font-size:17px
 }
 button{
- width:100%;padding:13px;border:0;border-radius:12px;
- margin-top:10px;background:#6669ce;color:white;
- font-size:16px;font-weight:bold;cursor:pointer
+ padding:13px 18px;margin:7px;border:0;
+ border-radius:11px;
+ background:linear-gradient(135deg,#ffe08a,#ffb52e);
+ color:#24123d;font-size:16px;font-weight:bold;cursor:pointer
 }
-.secondary{background:#e9ebff;color:#484b98}
-.answer{
- background:#f0f2ff;color:#303653;text-align:left;
- border:1px solid #dce0f5
+button:disabled{opacity:.6}
+.secondary{background:#eee}
+.hidden{display:none!important}
+.stats{display:flex;gap:7px}
+.stat{flex:1;background:#ffffff18;padding:10px;border-radius:10px}
+.stat strong{display:block;color:#ffdb75;font-size:22px;margin-top:5px}
+.question{font-size:22px;line-height:1.5;margin:25px 0}
+.option{
+ display:block;width:100%;text-align:left;
+ background:#f2eaff;color:#261747;margin:10px 0
 }
-.correct{background:#d9f8e7!important;color:#17663d!important}
-.wrong{background:#ffe0e0!important;color:#9c2525!important}
-button:disabled{opacity:.9}
-.hidden{display:none}
-.stats{display:flex;gap:8px;margin:15px 0}
-.stat{
- flex:1;text-align:center;background:#f0f1ff;
- border-radius:12px;padding:12px 3px
-}
-.stat strong{display:block;font-size:21px;color:#5355ad}
-.stat span{font-size:12px;color:#717895}
-#question{font-size:19px;line-height:1.5}
-.bar{height:8px;background:#e5e7f7;border-radius:8px;overflow:hidden}
-#progress{height:100%;width:0;background:#7779df}
-#message{text-align:center;font-weight:bold}
-.row{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #eee}
-footer{text-align:center;padding:15px;color:#858ba2;font-size:12px}
+.correct{background:#80e6a0!important}
+.wrong{background:#ff9999!important}
+#feedback{min-height:25px}
+.small{font-size:13px;color:#ddd}
+ol{text-align:left;line-height:1.8}
 </style>
 </head>
 <body>
+<div class="container">
 
-<header>
- <div class="peacock">🦚 🪷 🦚</div>
- <h1>Tap Champion</h1>
- <div class="sub">✨ My First Quiz Game ✨</div>
-</header>
+<h1>🦚 Chirag Quiz Game 🦚</h1>
+<p>Learn • Play • Become Champion</p>
 
-<main class="container">
-
-<section id="home" class="card">
- <h2>🙏 स्वागत है!</h2>
- <p>अपना नाम लिखो और गेम शुरू करो।</p>
- <input id="playerName" maxlength="20" placeholder="अपना नाम लिखें">
- <button onclick="login()">🎮 Play Game</button>
- <button class="secondary" onclick="leaderboard()">🏆 Leaderboard</button>
+<section id="login" class="card">
+<h2>Welcome Player 👑</h2>
+<p>अपना नाम लिखकर गेम शुरू करो</p>
+<input id="playerName" maxlength="20" placeholder="अपना नाम लिखें">
+<br>
+<button onclick="login()">LOGIN & PLAY</button>
 </section>
 
-<section id="dashboard" class="card hidden">
- <h2>नमस्ते, <span id="welcome"></span>! 👋</h2>
- <div class="stats">
-  <div class="stat"><strong id="points">0</strong><span>Total Points</span></div>
-  <div class="stat"><strong id="best">0</strong><span>Best Score</span></div>
- </div>
- <button onclick="startQuiz()">🚀 Start Quiz</button>
- <button class="secondary" onclick="leaderboard()">🏆 Leaderboard</button>
- <button class="secondary" onclick="goHome()">↩ Change Player</button>
+<section id="home" class="hidden">
+<div class="card">
+<h2>नमस्ते <span id="showName"></span> 👑</h2>
+<div class="stats">
+<div class="stat">Points<strong id="points">0</strong></div>
+<div class="stat">Best Score<strong id="best">0</strong></div>
+</div>
+<button onclick="startQuiz()">START NEW QUIZ 🚀</button>
+</div>
+<div class="card">
+<h3>🏆 Top Players</h3>
+<ol id="leaderboard"></ol>
+</div>
+<button class="secondary" onclick="logout()">LOGOUT</button>
 </section>
 
-<section id="quiz" class="card hidden">
- <div class="stats">
-  <div class="stat"><strong id="number">1/10</strong><span>Question</span></div>
-  <div class="stat"><strong id="timer">20</strong><span>Seconds</span></div>
-  <div class="stat"><strong id="score">0</strong><span>Score</span></div>
- </div>
- <div class="bar"><div id="progress"></div></div>
- <h2 id="category">General Knowledge</h2>
- <p id="question"></p>
- <div id="answers"></div>
- <p id="message"></p>
- <button id="next" class="hidden" onclick="nextQuestion()">Next Question ➜</button>
- <button class="secondary" onclick="goHome()">🏠 Home</button>
+<section id="game" class="hidden">
+<div class="card">
+<div class="stats">
+<div class="stat">Question<strong id="qNumber">1/10</strong></div>
+<div class="stat">Score<strong id="score">0</strong></div>
+<div class="stat">Time<strong id="time">20</strong></div>
+</div>
+<div class="question" id="question"></div>
+<div id="options"></div>
+<div id="feedback"></div>
+<p class="small">सही जवाब = +10 Points</p>
+</div>
+<button class="secondary" onclick="goHome()">HOME</button>
 </section>
 
-<section id="result" class="card hidden">
- <h2 style="text-align:center">🎉 Quiz Complete!</h2>
- <p id="emoji" style="text-align:center;font-size:38px">🏆</p>
- <div class="stats">
-  <div class="stat"><strong id="finalScore">0</strong><span>Score</span></div>
-  <div class="stat"><strong id="correctCount">0/10</strong><span>Correct</span></div>
- </div>
- <p id="resultMessage" style="text-align:center"></p>
- <button onclick="startQuiz()">🔄 Play Again</button>
- <button class="secondary" onclick="leaderboard()">🏆 Leaderboard</button>
- <button class="secondary" onclick="goHome()">🏠 Home</button>
+<section id="result" class="hidden">
+<div class="card">
+<h2>🎉 Quiz Complete!</h2>
+<h1 id="finalScore">0</h1>
+<p>तुम्हारा स्कोर</p>
+<p id="resultMessage"></p>
+<button onclick="startQuiz()">PLAY AGAIN</button>
+<button class="secondary" onclick="goHome()">HOME</button>
+</div>
 </section>
 
-<section id="board" class="card hidden">
- <h2>🏆 Leaderboard</h2>
- <div id="leaderList"></div>
- <button class="secondary" onclick="goHome()">🏠 Back</button>
-</section>
-
-</main>
-<footer>Made with ❤️ for Quiz Champions</footer>
+<p class="small">Chirag Quiz Game • Keep Learning • Keep Winning</p>
+</div>
 
 <script>
-const questions=[
- {q:"भारत की राजधानी क्या है?",a:["मुंबई","नई दिल्ली","कोलकाता","जयपुर"],c:1,cat:"🇮🇳 General Knowledge"},
- {q:"एक सप्ताह में कितने दिन होते हैं?",a:["5","6","7","8"],c:2,cat:"📚 General Knowledge"},
- {q:"पौधे कौन-सी गैस अवशोषित करते हैं?",a:["ऑक्सीजन","कार्बन डाइऑक्साइड","नाइट्रोजन","हाइड्रोजन"],c:1,cat:"🌱 Science"},
- {q:"सूर्य किस दिशा से निकलता है?",a:["उत्तर","दक्षिण","पूर्व","पश्चिम"],c:2,cat:"🌍 General Knowledge"},
- {q:"2 + 5 कितना होता है?",a:["6","7","8","9"],c:1,cat:"🔢 Mathematics"},
- {q:"पानी का रासायनिक सूत्र क्या है?",a:["CO2","O2","H2O","NaCl"],c:2,cat:"🧪 Science"},
- {q:"भारत का राष्ट्रीय पशु कौन है?",a:["शेर","बाघ","हाथी","घोड़ा"],c:1,cat:"🇮🇳 General Knowledge"},
- {q:"कंप्यूटर का दिमाग किसे कहते हैं?",a:["माउस","कीबोर्ड","CPU","मॉनिटर"],c:2,cat:"💻 Computer"},
- {q:"एक घंटे में कितने मिनट होते हैं?",a:["30","45","60","100"],c:2,cat:"⏰ General Knowledge"},
- {q:"पृथ्वी का प्राकृतिक उपग्रह कौन है?",a:["सूर्य","मंगल","चंद्रमा","शुक्र"],c:2,cat:"🌍 Science"}
+"use strict";
+
+const KEY="chiragQuizGameData";
+let data={},player="",round=[],current=0,score=0;
+let timer=null,nextTimer=null,seconds=20;
+let answered=false,session=0;
+
+const bank=[
+["भारत की राजधानी क्या है?",["दिल्ली","मुंबई","लखनऊ","जयपुर"],0],
+["एक सप्ताह में कितने दिन होते हैं?",["5","6","7","8"],2],
+["भारत का राष्ट्रीय पशु कौन है?",["शेर","बाघ","हाथी","घोड़ा"],1],
+["12 + 15 कितना होता है?",["25","26","27","28"],2],
+["पृथ्वी का प्राकृतिक उपग्रह कौन है?",["सूर्य","चंद्रमा","मंगल","शुक्र"],1],
+["सबसे बड़ा महासागर कौन सा है?",["हिंद महासागर","अटलांटिक","प्रशांत","आर्कटिक"],2],
+["प्रकाश संश्लेषण में पौधे कौन सी गैस लेते हैं?",["ऑक्सीजन","कार्बन डाइऑक्साइड","नाइट्रोजन","हाइड्रोजन"],1],
+["भारत का राष्ट्रीय पक्षी कौन है?",["तोता","मोर","कबूतर","हंस"],1],
+["त्रिभुज की कितनी भुजाएँ होती हैं?",["2","3","4","5"],1],
+["सूर्य किस दिशा से निकलता है?",["पश्चिम","उत्तर","पूर्व","दक्षिण"],2],
+["भारत का राष्ट्रीय फूल कौन सा है?",["गुलाब","कमल","चमेली","गेंदा"],1],
+["पानी का रासायनिक सूत्र क्या है?",["CO2","O2","H2O","NaCl"],2],
+["कंप्यूटर का दिमाग किसे कहते हैं?",["माउस","CPU","कीबोर्ड","स्क्रीन"],1],
+["इंद्रधनुष में कितने रंग होते हैं?",["5","6","7","8"],2],
+["भारत कब स्वतंत्र हुआ?",["1945","1947","1950","1952"],1],
+["लाल ग्रह किसे कहते हैं?",["शुक्र","मंगल","बृहस्पति","शनि"],1],
+["एक साल में कितने महीने होते हैं?",["10","11","12","13"],2],
+["भारत की मुद्रा क्या है?",["डॉलर","रुपया","यूरो","येन"],1],
+["किस जानवर को रेगिस्तान का जहाज कहते हैं?",["घोड़ा","ऊँट","हाथी","गधा"],1],
+["खून को शरीर में कौन पंप करता है?",["फेफड़े","दिमाग","हृदय","गुर्दा"],2],
+["भारत का राष्ट्रीय गान कौन सा है?",["वंदे मातरम्","जन गण मन","सारे जहाँ से अच्छा","इनमें से कोई नहीं"],1],
+["सबसे बड़ा महाद्वीप कौन सा है?",["यूरोप","अफ्रीका","एशिया","ऑस्ट्रेलिया"],2],
+["कौन सा विटामिन धूप से मिलता है?",["A","B","C","D"],3],
+["एक घंटे में कितने मिनट होते हैं?",["30","45","60","90"],2],
+["मधुमक्खी क्या बनाती है?",["दूध","शहद","तेल","नमक"],1],
+["सबसे ऊँचा पर्वत कौन सा है?",["K2","एवरेस्ट","कंचनजंगा","नंदा देवी"],1],
+["भारत का गणतंत्र दिवस कब है?",["15 अगस्त","26 जनवरी","2 अक्टूबर","14 नवंबर"],1],
+["पृथ्वी पर कितने महाद्वीप हैं?",["5","6","7","8"],2],
+["मानव शरीर में कितने फेफड़े होते हैं?",["1","2","3","4"],1],
+["भारत का राष्ट्रीय फल कौन सा है?",["सेब","आम","केला","अंगूर"],1]
 ];
 
-let player="";
-let index=0,score=0,correct=0,time=20;
-let timerId=null,answered=false,round=[];
-
-function $(id){return document.getElementById(id)}
-
-function show(id){
- ["home","dashboard","quiz","result","board"].forEach(
-  x=>$(x).classList.add("hidden")
- );
- $(id).classList.remove("hidden");
-}
-
-function getData(){
- try{return JSON.parse(localStorage.getItem("tapChampionData"))||{}}
+function loadData(){
+ try{return JSON.parse(localStorage.getItem(KEY))||{}}
  catch(e){return {}}
 }
-
-function saveData(data){
- try{localStorage.setItem("tapChampionData",JSON.stringify(data))}
- catch(e){}
+function saveData(){
+ try{localStorage.setItem(KEY,JSON.stringify(data))}
+ catch(e){alert("डेटा सेव नहीं हो पाया।")}
 }
-
+function stopTimers(){
+ clearInterval(timer);
+ clearTimeout(nextTimer);
+ timer=null;
+ nextTimer=null;
+}
+function show(id){
+ ["login","home","game","result"].forEach(x=>{
+  document.getElementById(x).classList.add("hidden");
+ });
+ document.getElementById(id).classList.remove("hidden");
+}
 function login(){
- const name=$("playerName").value.trim();
+ let name=document.getElementById("playerName").value.trim();
  if(!name){alert("पहले अपना नाम लिखो!");return}
  player=name;
- const data=getData();
- if(!data[player])data[player]={points:0,best:0};
- saveData(data);
- updateDashboard();
- show("dashboard");
+ data=loadData();
+ if(!data[player])data[player]={points:0,best:0,used:[]};
+ if(!Array.isArray(data[player].used))data[player].used=[];
+ data[player].points=Number(data[player].points)||0;
+ data[player].best=Number(data[player].best)||0;
+ saveData();
+ openHome();
 }
-
-function updateDashboard(){
- const data=getData();
- const p=data[player]||{points:0,best:0};
- $("welcome").textContent=player;
- $("points").textContent=p.points;
- $("best").textContent=p.best;
+function openHome(){
+ if(!player)return;
+ document.getElementById("showName").textContent=player;
+ document.getElementById("points").textContent=data[player].points;
+ document.getElementById("best").textContent=data[player].best;
+ updateBoard();
+ show("home");
 }
-
-function startQuiz(){
- if(!player){show("home");return}
- round=[...questions].sort(()=>Math.random()-.5);
- index=0;score=0;correct=0;
- show("quiz");
- renderQuestion();
+function logout(){
+ session++;
+ stopTimers();
+ player="";
+ round=[];
+ document.getElementById("playerName").value="";
+ show("login");
 }
-
-function renderQuestion(){
- clearInterval(timerId);
- answered=false;time=20;
- const q=round[index];
- $("number").textContent=(index+1)+"/"+round.length;
- $("timer").textContent=time;
- $("score").textContent=score;
- $("category").textContent=q.cat;
- $("question").textContent=q.q;
- $("progress").style.width=(index/round.length*100)+"%";
- $("message").textContent="";
- $("next").classList.add("hidden");
- const box=$("answers");
- box.innerHTML="";
- q.a.forEach((answer,i)=>{
-  const b=document.createElement("button");
-  b.className="answer";
-  b.textContent=String.fromCharCode(65+i)+". "+answer;
-  b.onclick=()=>answerQuestion(i);
-  box.appendChild(b);
+function goHome(){
+ session++;
+ stopTimers();
+ round=[];
+ openHome();
+}
+function updateBoard(){
+ let list=document.getElementById("leaderboard");
+ list.innerHTML="";
+ Object.entries(data)
+ .sort((a,b)=>(b[1].points||0)-(a[1].points||0))
+ .slice(0,10).forEach(([name,p])=>{
+  let li=document.createElement("li");
+  li.textContent=name+" — "+(p.points||0)+" points";
+  list.appendChild(li);
  });
- timerId=setInterval(()=>{
-  time--;
-  $("timer").textContent=time;
-  if(time<=0){
-   clearInterval(timerId);
-   answerQuestion(null);
+ if(!list.children.length)list.innerHTML="<li>अभी कोई खिलाड़ी नहीं</li>";
+}
+function shuffle(a){
+ for(let i=a.length-1;i>0;i--){
+  let j=Math.floor(Math.random()*(i+1));
+  [a[i],a[j]]=[a[j],a[i]];
+ }
+ return a;
+}
+function mathQuestion(used){
+ for(let tries=0;tries<5000;tries++){
+  let a=Math.floor(Math.random()*90)+10;
+  let b=Math.floor(Math.random()*20)+1;
+  let op=["+","-","×"][Math.floor(Math.random()*3)];
+  if(op==="×"){
+   a=Math.floor(Math.random()*12)+2;
+   b=Math.floor(Math.random()*12)+2;
+  }
+  let ans=op==="+"?a+b:op==="-"?a-b:a*b;
+  let id="math-"+op+"-"+a+"-"+b;
+  if(used.has(id))continue;
+  let wrong=new Set();
+  while(wrong.size<3){
+   let v=ans+Math.floor(Math.random()*21)-10;
+   if(v!==ans&&v>=0)wrong.add(v);
+  }
+  let opts=shuffle([ans,...wrong]);
+  return {id:id,q:a+" "+op+" "+b+" = ?",options:opts.map(String),answer:opts.indexOf(ans)};
+ }
+ return null;
+}
+function startQuiz(){
+ if(!player)return;
+ session++;
+ stopTimers();
+ let used=new Set(data[player].used||[]);
+ let available=bank.map((q,i)=>({
+  id:"bank-"+i,q:q[0],options:q[1],answer:q[2]
+ })).filter(q=>!used.has(q.id));
+ shuffle(available);
+ round=available.slice(0,10);
+ while(round.length<10){
+  let q=mathQuestion(used);
+  if(!q)break;
+  round.push(q);
+  used.add(q.id);
+ }
+ if(round.length<10){
+  alert("नए सवाल तैयार नहीं हो पाए।");
+  openHome();
+  return;
+ }
+ round.forEach(q=>used.add(q.id));
+ data[player].used=[...used];
+ saveData();
+ current=0;
+ score=0;
+ document.getElementById("score").textContent="0";
+ show("game");
+ showQuestion();
+}
+function showQuestion(){
+ stopTimers();
+ if(current>=round.length){finishQuiz();return}
+ answered=false;
+ seconds=20;
+ let q=round[current];
+ document.getElementById("time").textContent=seconds;
+ document.getElementById("qNumber").textContent=(current+1)+"/10";
+ document.getElementById("question").textContent=q.q;
+ document.getElementById("feedback").textContent="";
+ let box=document.getElementById("options");
+ box.innerHTML="";
+ q.options.forEach((option,i)=>{
+  let btn=document.createElement("button");
+  btn.className="option";
+  btn.textContent=option;
+  btn.onclick=()=>answerQuestion(i,btn);
+  box.appendChild(btn);
+ });
+ let s=session;
+ timer=setInterval(()=>{
+  if(s!==session){stopTimers();return}
+  seconds--;
+  document.getElementById("time").textContent=seconds;
+  if(seconds<=0&&!answered){
+   answered=true;
+   stopTimers();
+   disableOptions();
+   document.getElementById("feedback").textContent="⏰ समय समाप्त!";
+   scheduleNext(1000,s);
   }
  },1000);
 }
-
-function answerQuestion(selected){
+function disableOptions(){
+ document.querySelectorAll("#options button").forEach(b=>b.disabled=true);
+}
+function answerQuestion(choice,btn){
  if(answered)return;
  answered=true;
- clearInterval(timerId);
- const q=round[index];
- const buttons=$("answers").querySelectorAll("button");
- buttons.forEach((b,i)=>{
-  b.disabled=true;
-  if(i===q.c)b.classList.add("correct");
-  if(i===selected&&selected!==q.c)b.classList.add("wrong");
- });
- if(selected===q.c){
-  score+=10;correct++;
-  $("message").textContent="🎉 सही जवाब! +10 पॉइंट्स";
-  $("message").style.color="#16834a";
- }else if(selected===null){
-  $("message").textContent="⏰ समय पूरा! सही जवाब हाइलाइट है।";
+ stopTimers();
+ let q=round[current];
+ disableOptions();
+ let buttons=document.querySelectorAll("#options button");
+ buttons[q.answer].classList.add("correct");
+ if(choice===q.answer){
+  score+=10;
+  document.getElementById("score").textContent=score;
+  document.getElementById("feedback").textContent="🎉 सही जवाब! +10 Points";
  }else{
-  $("message").textContent="😊 कोई बात नहीं! सही जवाब हाइलाइट है।";
+  btn.classList.add("wrong");
+  document.getElementById("feedback").textContent="❌ गलत जवाब!";
  }
- $("score").textContent=score;
- $("next").textContent=index===round.length-1?"🏆 See Result":"Next Question ➜";
- $("next").classList.remove("hidden");
+ scheduleNext(1000,session);
 }
-
-function nextQuestion(){
- if(!answered)return;
- index++;
- if(index>=round.length){finishQuiz()}
- else{renderQuestion()}
+function scheduleNext(delay,s){
+ nextTimer=setTimeout(()=>{
+  nextTimer=null;
+  if(s!==session)return;
+  current++;
+  showQuestion();
+ },delay);
 }
-
 function finishQuiz(){
- clearInterval(timerId);
- const data=getData();
- if(!data[player])data[player]={points:0,best:0};
- data[player].points+=score;
- data[player].best=Math.max(data[player].best,score);
- saveData(data);
- $("finalScore").textContent=score;
- $("correctCount").textContent=correct+"/"+round.length;
- $("emoji").textContent=correct>=8?"🏆":correct>=5?"🌟":"💪";
- $("resultMessage").textContent="बहुत बढ़िया, "+player+"! तुमने "+score+" पॉइंट्स कमाए।";
- $("progress").style.width="100%";
+ stopTimers();
+ session++;
+ data=loadData();
+ if(!data[player])return;
+ data[player].points=(data[player].points||0)+score;
+ data[player].best=Math.max(data[player].best||0,score);
+ saveData();
+ document.getElementById("finalScore").textContent=score;
+ document.getElementById("resultMessage").textContent="बहुत अच्छा खेला! तुम्हारे पॉइंट अपडेट हो गए।";
  show("result");
 }
-
-function leaderboard(){
- const data=getData();
- const list=Object.entries(data).sort((a,b)=>b[1].points-a[1].points).slice(0,10);
- const box=$("leaderList");
- box.innerHTML="";
- if(!list.length){
-  box.textContent="अभी कोई स्कोर नहीं है। पहले क्विज़ खेलो!";
- }else{
-  list.forEach((item,i)=>{
-   const row=document.createElement("div");
-   row.className="row";
-   const name=document.createElement("span");
-   name.textContent=(["🥇","🥈","🥉"][i]||(i+1)+".")+" "+item[0];
-   const pts=document.createElement("strong");
-   pts.textContent=item[1].points+" pts";
-   row.appendChild(name);row.appendChild(pts);
-   box.appendChild(row);
-  });
- }
- show("board");
-}
-
-function goHome(){
- clearInterval(timerId);
- if(player){updateDashboard();show("dashboard")}
- else{show("home")}
-}
+data=loadData();
+show("login");
 </script>
-
 </body>
 </html>
